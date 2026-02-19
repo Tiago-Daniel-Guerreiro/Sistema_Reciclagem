@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meu Mapa Gratuito</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+    <button popovertarget="sidebar" id="search-btn-main">Pesquisar</button>
+    <div id="sidebar" popover>
+        <div id="sidebar-header"> 
+            Pesquisar
+            <button popovertarget="sidebar" popovertargetaction="hide" id="minimize-sidebar" title="Fechar"><</button>
+        </div>
+        
+        <div id="search-container">
+            <input 
+                type="text" 
+                id="search-input" 
+                placeholder="Ex: Lisboa, Cacém..."
+            />
+            <button id="search-submit-btn">Pesquisar</button>
+            <button id="locate-me-btn">Localizar-me</button>
+        </div>
+        <div id="results"></div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="map.js"></script>
+    <script src="sidebar.js"></script>
+    <script src="marker.js"></script>
+    <script>
+        window.onload = function() {
+            Layers.initialize();
+            adicionarPontos();
+            sidebar_init();
+        }
+    </script>
+</body>
+</html>
