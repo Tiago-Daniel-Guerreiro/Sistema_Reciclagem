@@ -1,42 +1,178 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-PT">
 <head>
-    <title>Meu Mapa Gratuito</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mapa interativo para pesquisa de locais, visualização de pontos de recolha de resíduos e planeamento de rotas em Portugal.">
+    <title>Tiago Guerreiro - Mapa</title>
+    <link rel="preload" href="style.css" as="style">
     <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-    <button popovertarget="sidebar" id="search-btn-main">Pesquisar</button>
+    <main id="main-content">
+    <button popovertarget="sidebar" id="open-sidebar-btn" class="sidebar-btn">☰</button>
     <div id="sidebar" popover>
         <div id="sidebar-header"> 
-            Pesquisar
-            <button popovertarget="sidebar" popovertargetaction="hide" id="minimize-sidebar" title="Fechar"><</button>
+            <h1 class="sidebar-header-label">Menu</h1>
+            <button popovertarget="sidebar" popovertargetaction="hide" id="minimize-sidebar-btn" class="sidebar-btn">☰</button>
         </div>
-        
-        <div id="search-container">
-            <input 
-                type="text" 
-                id="search-input" 
-                placeholder="Ex: Lisboa, Cacém..."
-            />
-            <button id="search-submit-btn">Pesquisar</button>
-            <button id="locate-me-btn">Localizar-me</button>
+            
+        <div class="sidebar-tabs">
+            <div class="tab-bar">
+                <input type="radio" name="tab-radio" id="tab-pesquisa" class="tab-radio" checked>
+                <label for="tab-pesquisa" class="tab-label">Pesquisa</label>
+                <input type="radio" name="tab-radio" id="tab-filtros" class="tab-radio">
+                <label for="tab-filtros" class="tab-label">Filtros</label>
+                <input type="radio" name="tab-radio" id="tab-pontos" class="tab-radio">
+                <label for="tab-pontos" class="tab-label">Pontos</label>
+                <input type="radio" name="tab-radio" id="tab-rotas" class="tab-radio">
+                <label for="tab-rotas" class="tab-label">Rotas</label>
+            </div>
+
+            <div class="tab-content tab-pesquisa-content">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Pesquisar..." autocomplete="off">
+                    <button id="search-submit-btn">Buscar</button>
+                </div>
+
+                <div id="suggestions-container" class="suggestions-container hidden">
+                    <ul id="suggestions-list" class="suggestions-list"></ul>
+                </div>
+
+                <label for="search-type-filter" class="label-search-type-filter">Filtrar tipo de pesquisa</label>
+                <select id="search-type-filter">
+                    <option value="">Todos os tipos</option>
+                    <option value="city">Cidade</option>
+                    <option value="town">Vila</option>
+                    <option value="village">Aldeia</option>
+                    <option value="suburb">Subúrbio</option>
+                    <option value="street">Rua</option>
+                    <option value="amenity">Serviço</option>
+                    <option value="tourism">Turismo</option>
+                </select>
+
+                <button id="locate-me-btn">Localizar-me</button>
+
+                <div id="results" class="results-list"></div>
+            </div>
+
+            <div id="filters" class="tab-content tab-filtros-content">
+                <h3>Mostrar no mapa</h3>
+                <div class="filter-group">
+                    <label class="filter-item"><input type="checkbox" data-css-var="marker-recolha" checked> Pontos de recolha</label>
+                    <label class="filter-item"><input type="checkbox" data-css-var="marker-search" checked> Resultados de pesquisa</label>
+                    <label class="filter-item"><input type="checkbox" data-css-var="marker-manual" checked> Pontos marcados</label>
+                    <label class="filter-item"><input type="checkbox" data-css-var="marker-location" checked> Minha localização</label>
+                </div>
+
+                <h3>Visualizações</h3>
+                <div class="filter-group">
+                    <label class="filter-item"><input type="checkbox" data-css-var="leaflet-geo-pane" checked> Mostrar áreas</label>
+                    <label class="filter-item"><input type="checkbox" data-css-var="route-polyline" checked> Mostrar rotas</label>
+                    <label class="filter-item"><input type="checkbox" data-css-var="map-label" checked> Mostrar etiqueta de rota</label>
+                    <label class="filter-item"><input type="checkbox" data-css-var="show-markers" checked> Mostrar marcadores</label>
+                </div>
+
+                <h3>Região</h3>
+                <div class="filter-group">
+                    <label class="filter-item"><input type="checkbox" id="modo-breno-checkbox"> Apenas Lisboa</label>
+                </div>
+
+                <h3>Tipos de Resíduos</h3>
+                
+                <h4 class="residuo-category-title">Eletrônicos</h4>
+                <div class="filter-group" id="residuos-filters-eletronicos">
+                    <p class="loading-placeholder">A carregar tipos disponíveis...</p>
+                </div>
+
+                <h4 class="residuo-category-title">Gerais</h4>
+                <div class="filter-group" id="residuos-filters-gerais">
+                    <p class="loading-placeholder">A carregar tipos disponíveis...</p>
+                </div>
+            </div>
+
+            <div class="tab-content tab-pontos-content">
+                <div id="all-points-list" class="results-list"></div>
+            </div>
+
+            <div class="tab-content tab-rotas-content">
+                <div class="route-endpoints">
+                    <div class="route-endpoint-item">
+                        <strong class="route-label">Origem:</strong>
+                        <div id="route-origin-display">Não definida</div>
+                    </div>
+                    <div class="route-endpoint-item">
+                        <strong class="route-label">Destino:</strong>
+                        <div id="route-destination-display">Não definida</div>
+                    </div>
+                </div>
+                <div class="route-actions">
+                    <button id="route-swap-btn">⇄ Trocar</button>
+                    <button id="route-use-location-btn">Usar Localização</button>
+                </div>
+
+                <div id="route-steps"></div>
+            </div>
         </div>
-        <div id="results"></div>
+    </div>
+
+    <div class="context-menu" id="context-menu">
+        <button class="context-item" id="ctx-mark">Marcar ponto</button>
+        <button class="context-item" id="ctx-details">Ver detalhes</button>
+        <button class="context-item" id="ctx-nearby">Pontos de Recolha Próximos</button>
+        <button class="context-item" id="ctx-origin">Definir como origem</button>
+        <button class="context-item" id="ctx-destination">Definir como destino</button>
     </div>
 
     <div id="map"></div>
+    </main>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="map.js"></script>
-    <script src="sidebar.js"></script>
-    <script src="marker.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.1/dist/leaflet.markercluster.js"></script>
+
     <script>
-        window.onload = function() {
-            Layers.initialize();
-            adicionarPontos();
-            sidebar_init();
-        }
+        // Configurar caminhos padrão do Leaflet para os ícones locais
+        L.Icon.Default.prototype.options.iconUrl = './icons/marker-icon.svg';
+        L.Icon.Default.prototype.options.shadowUrl = './icons/marker-shadow.svg';
     </script>
+
+    <script src="Constants.js" defer></script>
+    <script src="utils/utils.js" defer></script>
+    <script src="utils/format.js" defer></script>
+    <script src="utils/modal.js" defer></script>
+    <script src="utils/modalRenderer.js" defer></script>
+    <script src="utils/CategoryCatalog.js" defer></script>
+
+    <script src="api/apiClient.js" defer></script>
+    <script src="api/apiService.js" defer></script>
+    <script src="map.js" defer></script>
+
+    <script src="recolha/RecolhaAPI.js" defer></script>
+    <script src="recolha/RecolhaMarker.js" defer></script>
+    <script src="recolha/RecolhaFilter.js" defer></script>
+    <script src="recolha/RecolhaManager.js" defer></script>
+
+    <script src="PlaceRenderer.js" defer></script>
+    <script src="pontos/PontosStorage.js" defer></script>
+    <script src="pontos/PontosMarker.js" defer></script>
+    <script src="pontos/PontosManager.js" defer></script>
+
+    <script src="sidebar.js" defer></script>
+    <script src="contextMenu.js" defer></script>
+    <script src="ModoBreno.js" defer></script>
+    <script src="detalhes.js" defer></script>
+    <script src="nearbyPoints.js" defer></script>
+
+    <script src="search/searchSuggestions.js" defer></script>
+    <script src="search/searchResults.js" defer></script>
+    <script src="search/search.js" defer></script>
+
+    <script src="routes/routesData.js" defer></script>
+    <script src="routes/routesRenderer.js" defer></script>
+    <script src="routes/routesMapDrawer.js" defer></script>
+    <script src="routes/routes.js" defer></script>
+
+    <script src="pointsList.js" defer></script>
+    <script src="app.js" defer></script>
 </body>
 </html>
