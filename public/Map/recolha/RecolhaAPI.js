@@ -56,14 +56,28 @@ const RecolhaAPI = (function () {
     }
 
     async function _loadSnapshot() {
+        const snapshot = localStorage.getItem('snapshot_cache');
+
+        if (snapshot != null) {
+            try {
+                return JSON.parse(snapshot);
+            } catch (e) {
+                console.warn('[RecolhaAPI._loadSnapshot] Cache inválido, limpando:', e);
+                localStorage.removeItem('snapshot_cache');
+            }
+        }
+
         try {
             const res = await fetch('./snapshot.json');
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            return await res.json();
+            const data = await res.json();
+            localStorage.setItem('snapshot_cache', JSON.stringify(data));
+            return data;
         } catch (e) {
-            console.warn('[RecolhaAPI._loadSnapshot] Erro:', e);
-            return null;
+            console.warn('[RecolhaAPI._loadSnapshot] Fetch falhou:', e);
         }
+
+        return null;
     }
 
     async function sync() {
