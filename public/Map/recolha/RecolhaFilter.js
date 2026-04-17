@@ -13,8 +13,10 @@ const RecolhaFilter = (function () {
         const label = Utils.createElement('label', 'filter-item', '');
         label.appendChild(input);
         const text = Utils.createElement('span', '', `${cat.nome || cat.id} `);
-        const count = Utils.createElement('small', '', `(${cat.pontos || 0})`);
-        text.appendChild(count);
+        if (cat.pontos && cat.pontos > 0) {
+            const count = Utils.createElement('small', '', `(${cat.pontos})`);
+            text.appendChild(count);
+        }
         label.appendChild(text);
         return label;
     }
