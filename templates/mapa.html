@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa - ReciclaTech</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="logo">
+        RECICLATECH ♻️
+    </div>
+
+    <nav class="menu">
+        <a href="index.html">HOME</a>
+        <a href="mapa.html" class="ativo">MAPA</a>
+        <a href="classificacao.html">CLASSIFICAÇÃO</a>
+        <a href="informacoes.html">INFORMAÇÕES</a>
+        <a href="dados.html">DADOS</a>
+        <a href="contacto.html">CONTACTO</a>
+    </nav>
+
+    <div class="auth">
+        <a href="login.html" class="login">LOGIN</a>
+        <a href="registo.html" class="registar">REGISTAR</a>
+    </div>
+
+</header>
+
+<main style="padding: 30px 20px;">
+    <h1 style="text-align:center;">Mapa de Pontos de Recolha</h1>
+    <p style="text-align:center; margin-top:10px;">
+        Explore os locais em Lisboa onde pode descartar corretamente o seu lixo eletrónico.
+    </p>
+
+    <div style="margin: 24px auto 0; width: min(1200px, 100%); height: 75vh; min-height: 560px; border-radius: 12px; overflow: hidden; border: 1px solid #2c2c2c; background:#111;">
+        <iframe
+            src="/server-map/"
+            title="Mapa interativo ReciclaTech"
+            style="width:100%; height:100%; border:0;"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+    </div>
+</main>
+
+<footer>
+    <p>© 2026 ReciclaTech - Todos os direitos reservados</p>
+</footer>
+
+</body>
+</html>

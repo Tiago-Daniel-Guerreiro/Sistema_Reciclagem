@@ -1,0 +1,137 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* BODY */
+body {
+    font-family:  'Poppins' , sans-serif;
+    background-color: #1f1f1f;
+    color: white;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: #0f5132;
+}
+
+/* LOGO */
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* MENU */
+.menu {
+    display: flex;
+    gap: 30px;
+}
+
+.menu a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+/* HOVER */
+.menu a:hover {
+    color: #20c997;
+}
+
+/* ATIVO */
+.menu .ativo {
+    color: #20c997;
+}
+
+/* LOGIN */
+.auth {
+    display: flex;
+    gap: 15px;
+}
+
+.login {
+    color: red;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.registar {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* HERO */
+.hero {
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.hero h1 {
+    font-size: 60px;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    margin-bottom: 15px;
+    color: #ccc;
+}
+
+/* BOTÃO */
+.btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 25px;
+    background-color: #20c997;
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background-color: #17a589;
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #111;
+    margin-top: 50px;
+}
+.secao {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.secao h2 {
+    margin-bottom: 20px;
+}
+
+.cards {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.card {
+    background-color: #2c2c2c;
+    padding: 20px;
+    border-radius: 10px;
+    min-width: 200px;
+}
+
+.destaque {
+    background-color: #0f5132;
+}
