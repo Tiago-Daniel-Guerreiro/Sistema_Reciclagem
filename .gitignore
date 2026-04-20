@@ -1,3 +1,5 @@
 ServerMap/
 __pycache__/
 .venv/
+*.json
+*.db
