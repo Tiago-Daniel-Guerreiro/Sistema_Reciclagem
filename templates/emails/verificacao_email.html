@@ -4,11 +4,29 @@
     <meta charset="UTF-8">
     <title>Confirmacao de Email</title>
 </head>
-<body style="font-family: Arial, sans-serif; color: #222;">
-    <h2>Bem-vindo ao ReciclaTech, {{ usuario }}!</h2>
-    <p>Para ativares a tua conta, usa este codigo de verificacao:</p>
-    <h1 style="letter-spacing: 4px;">{{ codigo_verificacao }}</h1>
-    <p>Insere este codigo na pagina de verificacao de email.</p>
-    <p>Se nao foste tu a criar conta, ignora esta mensagem.</p>
+<body style="font-family: Arial, sans-serif; color: #222; line-height: 1.6;">
+    <div style="max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #2ecc71;">Bem-vindo ao ReciclaTech, {{ usuario }}!</h2>
+        
+        <p>Para ativares a tua conta, usa este código de verificação:</p>
+        
+        <div style="background: white; padding: 20px; border-radius: 6px; text-align: center; margin: 20px 0; border: 2px solid #2ecc71;">
+            <p style="font-size: 24px; font-weight: bold; letter-spacing: 6px; color: #2ecc71; margin: 0;">{{ codigo_verificacao }}</p>
+            <p style="font-size: 12px; color: #999; margin: 10px 0 0 0;">Válido por 24 horas</p>
+        </div>
+        
+        <p><strong>Passo a passo:</strong></p>
+        <ol>
+            <li>Vai para a página de verificação de email</li>
+            <li>Copia o código acima</li>
+            <li>Cola o código no campo indicado</li>
+            <li>Clica em confirmar</li>
+        </ol>
+        
+        <p style="color: #888; font-size: 13px;">Se não foste tu a criar conta, ignora esta mensagem. O código expirará em 24 horas.</p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #999; text-align: center;">ReciclaTech © 2026</p>
+    </div>
 </body>
 </html>

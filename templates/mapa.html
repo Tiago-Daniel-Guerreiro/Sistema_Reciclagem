@@ -1,56 +1,83 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa - ReciclaTech</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}Mapa - ReciclaTech{% endblock %}
 
-<header class="header">
+{% block extra_css %}
+<link rel="stylesheet" href="/css/mapa.css">
+{% endblock %}
 
-    <div class="logo">
-        RECICLATECH ♻️
-    </div>
+{% block content %}
 
-    <nav class="menu">
-        <a href="index.html">HOME</a>
-        <a href="mapa.html" class="ativo">MAPA</a>
-        <a href="classificacao.html">CLASSIFICAÇÃO</a>
-        <a href="informacoes.html">INFORMAÇÕES</a>
-        <a href="dados.html">DADOS</a>
-        <a href="contacto.html">CONTACTO</a>
-    </nav>
-
-    <div class="auth">
-        <a href="login.html" class="login">LOGIN</a>
-        <a href="registo.html" class="registar">REGISTAR</a>
-    </div>
-
-</header>
-
-<main style="padding: 30px 20px;">
-    <h1 style="text-align:center;">Mapa de Pontos de Recolha</h1>
-    <p style="text-align:center; margin-top:10px;">
-        Explore os locais em Lisboa onde pode descartar corretamente o seu lixo eletrónico.
+<main class="page-main">
+    <h1 class="page-title">Mapa de Pontos de Recolha</h1>
+    <p class="page-subtitle">
+        Explore os locais onde pode descartar corretamente o lixo eletrónico.
     </p>
 
-    <div style="margin: 24px auto 0; width: min(1200px, 100%); height: 75vh; min-height: 560px; border-radius: 12px; overflow: hidden; border: 1px solid #2c2c2c; background:#111;">
+    <div class="map-wrapper" id="mapWrapper">
         <iframe
-            src="/server-map/"
+            src="/map/"
             title="Mapa interativo ReciclaTech"
-            style="width:100%; height:100%; border:0;"
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade">
         </iframe>
     </div>
+
+    <div class="map-controls">
+        <button class="map-btn" id="btnMaximize" title="Maximizar mapa">Maximizar</button>
+        <button class="map-btn" id="btnFullscreen" title="Tela cheia">Tela Cheia</button>
+    </div>
 </main>
 
-<footer>
-    <p>© 2026 ReciclaTech - Todos os direitos reservados</p>
-</footer>
+<div class="maximize-mode" id="maximizeMode">
+    <div class="maximize-header">
+        <h1 class="maximize-title">Mapa Maximizado</h1>
+        <button class="map-btn" id="btnExitMaximize" title="Sair de maximização">✕ Sair</button>
+    </div>
+    <div class="maximize-map">
+        <iframe src="/map/" title="Mapa maximizado" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+</div>
 
-</body>
-</html>
+<script>
+    const btnMaximize = document.getElementById('btnMaximize');
+    const btnFullscreen = document.getElementById('btnFullscreen');
+    const btnExitMaximize = document.getElementById('btnExitMaximize');
+    const maximizeMode = document.getElementById('maximizeMode');
+
+    // Maximizar
+    btnMaximize.addEventListener('click', () => {
+        maximizeMode.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+
+    // Tela cheia
+    btnFullscreen.addEventListener('click', async () => {
+        const mapWrapper = document.getElementById('mapWrapper');
+        try {
+            switch (true) {
+                case mapWrapper.requestFullscreen: await mapWrapper.requestFullscreen(); break;
+                case mapWrapper.webkitRequestFullscreen: await mapWrapper.webkitRequestFullscreen(); break;
+                case mapWrapper.mozRequestFullScreen: await mapWrapper.mozRequestFullScreen(); break;
+                case mapWrapper.msRequestFullscreen: await mapWrapper.msRequestFullscreen(); break;
+            }
+        } catch (err) {
+            console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        }
+    });
+
+    // Sair do modo maximizado
+    btnExitMaximize.addEventListener('click', () => {
+        maximizeMode.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    });
+
+    // Sair com ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && maximizeMode.classList.contains('active')) {
+            maximizeMode.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+    });
+</script>
+{% endblock %}

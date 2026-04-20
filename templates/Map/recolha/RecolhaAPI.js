@@ -2,6 +2,7 @@ const RecolhaAPI = (function () {
     const API_BASE = `${window.location.origin}/api`;
     const CACHE_VERSION = 'recolha_v5';
     const CACHE_VERSION_KEY = 'recolha_cache_version';
+    const CACHE_TIMESTAMP_KEY = 'recolha_cache_timestamp';
 
     let _pontos = null;
     let _categoriasGerais = null;
@@ -14,11 +15,33 @@ const RecolhaAPI = (function () {
         localStorage.removeItem('recolha_categorias_gerais');
         localStorage.removeItem('recolha_categorias_eletronicos');
         localStorage.removeItem('recolha_pontos');
+        localStorage.removeItem(CACHE_TIMESTAMP_KEY);
         localStorage.setItem(CACHE_VERSION_KEY, CACHE_VERSION);
 
         _categoriasGerais = null;
         _categoriasEletronicos = null;
         _pontos = null;
+    }
+
+    async function _getCacheTimestamp() {
+        try {
+            const res = await fetch(`${API_BASE}/cache-info`, { method: 'HEAD' });
+            const lastModified = res.headers.get('Last-Modified');
+            if (lastModified) return new Date(lastModified).getTime();
+        } catch (e) {
+            console.warn('[RecolhaAPI._getCacheTimestamp] Falha ao obter timestamp');
+        }
+        return null;
+    }
+
+    async function _needsUpdate() {
+        const serverTimestamp = await _getCacheTimestamp();
+        if (serverTimestamp === null) return true; // Se falhar, atualiza por segurança
+
+        const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+        if (cachedTimestamp === null) return true; // Sem cache
+
+        return serverTimestamp > parseInt(cachedTimestamp, 10);
     }
 
     async function _fetchCategorias() {
@@ -68,7 +91,7 @@ const RecolhaAPI = (function () {
         }
 
         try {
-            const res = await fetch('./snapshot.json');
+            const res = await fetch('../data/snapshot.json');
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
             localStorage.setItem('snapshot_cache', JSON.stringify(data));
@@ -84,7 +107,26 @@ const RecolhaAPI = (function () {
         _ensureCacheVersion();
 
         try {
-            // Sempre fetch completo da API
+            // Verificar se dados foram atualizados
+            const needsUpdate = await _needsUpdate();
+
+            if (!needsUpdate && localStorage.getItem('recolha_pontos')) {
+                // Cache ainda é válido, carregar de localStorage
+                console.log('[RecolhaAPI.sync] Cache válido, usando dados em cache');
+                _categoriasGerais = JSON.parse(localStorage.getItem('recolha_categorias_gerais') || '[]');
+                _categoriasEletronicos = JSON.parse(localStorage.getItem('recolha_categorias_eletronicos') || '[]');
+                _pontos = JSON.parse(localStorage.getItem('recolha_pontos') || '[]');
+
+                return {
+                    categoriasGerais: _categoriasGerais,
+                    categoriasEletronicos: _categoriasEletronicos,
+                    pontos: _pontos,
+                    fromCache: true
+                };
+            }
+
+            // Dados foram atualizados ou cache vazio, fazer fetch completo
+            console.log('[RecolhaAPI.sync] Buscando dados atualizados da API');
             const allCategorias = await _fetchCategorias();
             const pontosRaw = await _fetchAllPontos();
 
@@ -108,6 +150,7 @@ const RecolhaAPI = (function () {
             localStorage.setItem('recolha_categorias_eletronicos', JSON.stringify(_categoriasEletronicos));
             localStorage.setItem('recolha_pontos', JSON.stringify(_pontos));
             localStorage.setItem('recolha_pontos_count', String(_pontos?.length || 0));
+            localStorage.setItem(CACHE_TIMESTAMP_KEY, String(Date.now()));
 
             return {
                 categoriasGerais: _categoriasGerais,
@@ -142,6 +185,7 @@ const RecolhaAPI = (function () {
                 localStorage.setItem('recolha_categorias_eletronicos', JSON.stringify(_categoriasEletronicos));
                 localStorage.setItem('recolha_pontos', JSON.stringify(_pontos));
                 localStorage.setItem('recolha_pontos_count', String(_pontos.length));
+                localStorage.setItem(CACHE_TIMESTAMP_KEY, String(Date.now()));
 
                 return {
                     categoriasGerais: _categoriasGerais,

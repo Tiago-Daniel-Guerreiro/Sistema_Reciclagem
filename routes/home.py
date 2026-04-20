@@ -3,33 +3,27 @@ from routes.email_service import enviar_contacto_para_equipa
 
 home_route = Blueprint('home', __name__)
 
-@home_route.route('/')
-@home_route.route('/index.html')
+@home_route.route("/")
 def home():
     return render_template('index.html')
 
+@home_route.route("/mapa", methods=["GET"])
+def mapa_page():
+    return render_template("mapa.html")
+
 @home_route.route("/informacoes")
-@home_route.route("/informacoes.html")
 def informacoes():
     return render_template("informacoes.html")
 
 @home_route.route("/dados")
-@home_route.route("/dados.html")
 def dados():
     return render_template("dados.html")
 
 @home_route.route('/classificacao')
-@home_route.route('/classificacao.html')
 def classificacao():
     return render_template('classificacao.html')
- 
-@home_route.route('/mapa')
-@home_route.route('/mapa.html')
-def mapa():
-    return render_template('mapa.html')
 
 @home_route.route('/contacto', methods=['GET', 'POST'])
-@home_route.route('/contacto.html', methods=['GET', 'POST'])
 def contacto():
     if request.method == "POST":
         nome = (request.form.get("nome") or "").strip()

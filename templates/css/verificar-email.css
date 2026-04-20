@@ -1,0 +1,89 @@
+.email-verification-page {
+    font-family: 'Poppins', sans-serif;
+    background: #0b0b0b;
+    color: white;
+}
+
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.verification-form {
+    background: #111;
+    padding: 30px;
+    border-radius: 10px;
+    width: 380px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.verification-form h2 {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.verification-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.verification-form input[type="email"],
+.verification-form input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 6px;
+    background: #1f2937;
+    color: white;
+    box-sizing: border-box;
+}
+
+.verification-form button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #16a34a;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+
+.verification-form button:hover {
+    background: #22c55e;
+}
+
+.verification-form .back-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #aaa;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.verification-form .back-link:hover {
+    color: #fff;
+}
+
+.verification-form .messages {
+    margin-bottom: 16px;
+}
+
+.verification-form .message-item {
+    padding: 8px;
+    border-radius: 6px;
+    background: #1f2937;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.verification-form .instruction-text {
+    margin-bottom: 16px;
+    color: #cfcfcf;
+}

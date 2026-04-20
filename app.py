@@ -1,72 +1,123 @@
+from __future__ import annotations
+
+import sys
+import json
 from pathlib import Path
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, redirect, send_from_directory, render_template, make_response
 from routes.autenticar import autenticar_route
 from routes.home import home_route
+from routes.api_routes import api_route
+
 import os
 
-app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "chave_super_secreta_para_dev")
-BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-app.register_blueprint(home_route)
-app.register_blueprint(autenticar_route)
-
-MAP_DIR = BASE_DIR / "Server_py" / "public" / "map"
-DB_MANAGER = None
-
-try:
-    from Server_py.core.config import ServerConfig
-    from Server_py.core.database import DatabaseManager
-
-    server_cfg = ServerConfig()
-    DB_MANAGER = DatabaseManager(server_cfg.db_path, merge_distance_meters=server_cfg.merge_distance_meters)
-except Exception as e:
-    print(f"[App] Mapa/API indisponivel: {e}")
+from core.config import ServerConfig
+from core.database import DatabaseManager
+from core.sync_service import WeeklySyncService
+from core.cache_manager import CacheManager
 
 
-@app.route("/css/<path:filename>")
-def css_files(filename):
-    return send_from_directory(BASE_DIR / "templates" / "css", filename)
+def create_app() -> Flask:
+    config = ServerConfig()
+    db = DatabaseManager(config.db_path, merge_distance_meters=config.merge_distance_meters)
+    
+    db_file_exists = Path(config.db_path).exists()
+    sync_service = WeeklySyncService(
+        db_manager=db,
+        interval_days=1,
+        check_interval_seconds=86400,
+    )
+    cache_manager = CacheManager(Path(config.db_path).parent / "cache")
+
+    app = Flask(__name__)
+    app.secret_key = os.environ.get("SECRET_KEY", "chave_super_secreta_para_dev")
+    app.config["SERVER_CONFIG"] = config
+    app.config["DB_MANAGER"] = db
+    app.config["SYNC_SERVICE"] = sync_service
+    app.config["CACHE_MANAGER"] = cache_manager
+
+    # Registra blueprints de autenticação
+    app.register_blueprint(home_route)
+    app.register_blueprint(autenticar_route)
+    app.register_blueprint(api_route)
+
+    # Caminho da pasta de recursos do mapa
+    static_folder = PROJECT_ROOT / "templates" / "Map"
+    static_folder.mkdir(parents=True, exist_ok=True)
+
+    data_folder = static_folder / "data"
+    data_folder.mkdir(parents=True, exist_ok=True)
+
+    # Inicializa dados
+    _init_data(db, sync_service, db_file_exists, data_folder)
+    
+    # Registra rotas
+    _register_routes(app, static_folder)
+
+    return app
 
 
-@app.route("/server-map/")
-def server_map_index():
-    return send_from_directory(MAP_DIR, "index.html")
-
-
-@app.route("/server-map/<path:filename>")
-def server_map_assets(filename):
-    return send_from_directory(MAP_DIR, filename)
-
-
-@app.get("/api/categorias")
-def api_categorias():
-    if DB_MANAGER is None:
-        return jsonify([])
-    since = request.args.get("since")
+def _init_data(db, sync_service, db_file_exists, data_folder):
+    sources = ["overpass", "dadosabertos", "eureciclo"]
+    
+    if not db_file_exists or db.count_points() == 0:
+        print("[App] Sincronizando dados inicialmente...", flush=True)
+        try:
+            sync_service.run_sync(force=True)
+            print("[App] Sincronização concluída", flush=True)
+        except Exception as e:
+            print(f"[App] Erro na sincronização: {e}", flush=True)
+    
+    print("[App] Garantindo snapshot.json...", flush=True)
     try:
-        return jsonify(DB_MANAGER.list_categories(since=since))
-    except Exception:
-        return jsonify([]), 503
+        snapshot_path = data_folder / "snapshot.json"
+        if not snapshot_path.exists() or snapshot_path.stat().st_size == 0:
+            snapshot = db.export_snapshot()
+            with open(snapshot_path, "w", encoding="utf-8") as f:
+                json.dump(snapshot, f, ensure_ascii=False, indent=2)
+            print(f"[App] Snapshot: {len(snapshot['categories'])} categorias, {len(snapshot['points'])} pontos")
+    except Exception as e:
+        print(f"[App] Erro ao criar snapshot: {e}", flush=True)
+    
+    print("[App] Status de sincronizações:", flush=True)
+    failed = []
+    for source in sources:
+        state = db.get_sync_state(source)
+        status = state.get("last_status", "unknown") if state else "unknown"
+        print(f"[App]   {source}: {status}", flush=True)
+        if status == "error":
+            failed.append(source)
+    
+    if failed:
+        print(f"[App] Tentando retry em {len(failed)} fonte(s)...", flush=True)
+        try:
+            sync_service.run_sync(force=True)
+            print("[App] Retry concluído", flush=True)
+        except Exception as e:
+            print(f"[App] Erro no retry: {e}", flush=True)
+
+def _register_routes(app, static_folder): 
+    @app.get("/")
+    def index():
+        return send_from_directory(static_folder, "index.html")
+
+    @app.get("/map/<path:filename>")
+    def serve_map_assets(filename):
+        return send_from_directory(static_folder, filename)
 
 
-@app.get("/api/pontos")
-def api_pontos():
-    if DB_MANAGER is None:
-        return jsonify({"meta": {"has_more": False}, "data": []})
-
-    try:
-        limit = int(request.args.get("limit", 1000))
-        offset = int(request.args.get("offset", 0))
-        since = request.args.get("since")
-    except ValueError:
-        return jsonify({"meta": {"has_more": False}, "data": []}), 400
-
-    try:
-        return jsonify(DB_MANAGER.list_points_api(limit=max(1, limit), offset=max(0, offset), since=since))
-    except Exception:
-        return jsonify({"meta": {"has_more": False}, "data": []}), 503
+# Cria a aplicação global
+app = create_app()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    cfg = app.config["SERVER_CONFIG"]
+    try:
+        app.run(host=cfg.host, port=cfg.port, debug=cfg.debug)
+    except KeyboardInterrupt:
+        print("\n[App] Encerrando...", flush=True)
+    finally:
+        print("[App] Encerrado", flush=True)

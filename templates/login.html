@@ -1,15 +1,9 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
 
-<title>Login - E-Lixo Zero Lisboa</title>
+{% block title %}Login - ReciclaTech{% endblock %}
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
+{% block extra_css %}
 <style>
-
 body{
     font-family:'Poppins',sans-serif;
     background:#0b0b0b;
@@ -84,16 +78,12 @@ button:hover{
 .back-link:hover{
     color:#16a34a;
 }
-
 </style>
-</head>
+{% endblock %}
 
-<body>
-
+{% block content %}
 <div class="form-container">
-
 <form action="/login" method="post">
-
 <h2>Login</h2>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -119,8 +109,5 @@ button:hover{
 </a>
 
 </form>
-
 </div>
-
-</body>
-</html>
+{% endblock %}

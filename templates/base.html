@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ReciclaTech{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <div class="logo">RECICLATECH ♻️</div>
+        <nav class="menu">
+            <a href="/" {% if request.path == '/' %}class="ativo"{% endif %}>HOME</a>
+            <a href="/mapa/" {% if request.path == '/mapa/' or request.path == '/mapa' %}class="ativo"{% endif %}>MAPA</a>
+            <a href="/classificacao" {% if request.path == '/classificacao' %}class="ativo"{% endif %}>CLASSIFICAÇÃO</a>
+            <a href="/informacoes" {% if request.path == '/informacoes' %}class="ativo"{% endif %}>INFORMAÇÕES</a>
+            <a href="/dados" {% if request.path == '/dados' %}class="ativo"{% endif %}>DADOS</a>
+            <a href="/contacto" {% if request.path == '/contacto' %}class="ativo"{% endif %}>CONTACTO</a>
+        </nav>
+        <div class="auth">
+            <a href="/login" class="login">LOGIN</a>
+            <a href="/registo" class="registar">REGISTAR</a>
+        </div>
+    </header>
+    {% block content %}{% endblock %}
+    <footer>
+        <p>© 2026 ReciclaTech - Todos os direitos reservados</p>
+    </footer>
+</body>
+</html>

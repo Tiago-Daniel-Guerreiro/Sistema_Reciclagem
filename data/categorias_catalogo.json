@@ -1,0 +1,343 @@
+{
+    "known_categories": [
+        {
+            "id": 0,
+            "key": "waste",
+            "display_name": "Lixo Geral",
+            "eletronico": false,
+            "aliases": [
+                "waste",
+                "trash",
+                "litter",
+                "lixo",
+                "general_waste",
+                "solid_waste",
+                "general_trash",
+                "mixed",
+                "paint_packaging",
+                "solvent_packaging"
+            ]
+        },
+        {
+            "id": 1,
+            "key": "unspecified_recycling",
+            "display_name": "Reciclagem (não especificada)",
+            "eletronico": false,
+            "aliases": [
+                "recycling",
+                "yes",
+                "*",
+                "unspecified",
+                "generic_recycling"
+            ]
+        },
+        {
+            "id": 2,
+            "key": "unknown",
+            "display_name": "Desconhecido",
+            "eletronico": false,
+            "aliases": [
+                "desconhecido",
+                "na",
+                "n_a"
+            ]
+        },
+        {
+            "id": 3,
+            "key": "glass",
+            "display_name": "Vidro",
+            "eletronico": false,
+            "aliases": [
+                "glasses",
+                "vidro",
+                "vidroes",
+                "glass_bottles",
+                "glass_jars",
+                "flat_glass",
+                "varnish_packaging",
+                "glass_bottles_colour",
+                "bottles"
+            ]
+        },
+        {
+            "id": 4,
+            "key": "paper",
+            "display_name": "Papel e Cartão",
+            "eletronico": false,
+            "aliases": [
+                "papel",
+                "paper_packaging",
+                "paper_bags",
+                "newspaper",
+                "magazines",
+                "papel_cartao",
+                "papel_e_cartao",
+                "centro_de_recepcao_de_papel",
+                "sheets",
+                "cardboard",
+                "cartons",
+                "tetrapak",
+                "book",
+                "books",
+                "beverage_cartons"
+            ]
+        },
+        {
+            "id": 5,
+            "key": "plastic",
+            "display_name": "Plástico",
+            "eletronico": false,
+            "aliases": [
+                "plastico",
+                "plastic_packaging",
+                "plastic_bags",
+                "pet_drink_bottles",
+                "plastic_bottles",
+                "cow_feeder_plastics",
+                "packaging",
+                "plastic_caps",
+                "plastic_bottle_caps",
+                "foil",
+                "polystyrene_foam",
+                "coffee_capsules",
+                "toys"
+            ]
+        },
+        {
+            "id": 6,
+            "key": "metal",
+            "display_name": "Metal",
+            "eletronico": false,
+            "aliases": [
+                "scrap_metal",
+                "aluminium",
+                "aluminium_cans",
+                "ferrous_metals",
+                "ferrous_scrap",
+                "non_ferrous_metals",
+                "metal_packaging",
+                "cans",
+                "latas_de_aerossol",
+                "aerosol_cans"
+            ]
+        },
+        {
+            "id": 7,
+            "key": "green_waste",
+            "display_name": "Lixo Verde",
+            "eletronico": false,
+            "aliases": [
+                "organic",
+                "organic_waste",
+                "organics",
+                "food_waste",
+                "garden_waste",
+                "resiuos_alimentares"
+            ]
+        },
+        {
+            "id": 8,
+            "key": "oil",
+            "display_name": "Óleos",
+            "eletronico": false,
+            "aliases": [
+                "oleos_alimentares_usados",
+                "oils",
+                "cooking_oil",
+                "waste_oil",
+                "oleo_alimentar",
+                "engine_oil",
+                "hydraulic_oil",
+                "lubricant"
+            ]
+        },
+        {
+            "id": 9,
+            "key": "lampadas",
+            "display_name": "Lâmpadas",
+            "eletronico": true,
+            "aliases": [
+                "lamps",
+                "light_bulbs",
+                "led_bulbs",
+                "low_energy_bulbs",
+                "fluorescent_tubes"
+            ]
+        },
+        {
+            "id": 10,
+            "key": "pilhas",
+            "display_name": "Pilhas",
+            "eletronico": true,
+            "aliases": [
+                "batteries",
+                "battery",
+                "pilhoes",
+                "car_batteries"
+            ]
+        },
+        {
+            "id": 11,
+            "key": "pequenos_equipamentos",
+            "display_name": "Equipamentos Elétricos Pequenos",
+            "eletronico": true,
+            "aliases": [
+                "small_appliances",
+                "small_electrical_appliances",
+                "electrical_appliances",
+                "toaster",
+                "mobile_phones",
+                "cds"
+            ]
+        },
+        {
+            "id": 12,
+            "key": "grandes_equipamentos",
+            "display_name": "Equipamentos Elétricos Grandes",
+            "eletronico": true,
+            "aliases": [
+                "white_goods",
+                "large_appliance",
+                "large_appliances",
+                "ovens",
+                "air_conditioner",
+                "cookers",
+                "hobs",
+                "gas_tankless_water_heater",
+                "photovoltaic_panels",
+                "tv_monitor",
+                "computers"
+            ]
+        },
+        {
+            "id": 13,
+            "key": "electronicos_e_equipamentos_electricos",
+            "display_name": "Eletrónicos e Equipamentos Elétricos",
+            "eletronico": true,
+            "aliases": [
+                "residuos_de_equipamentos_electricos_e_electronicos",
+                "electronicos_equipamentoseletricos",
+                "eletronicos_e_equipamentos_eletricos",
+                "electrical_items"
+            ]
+        },
+        {
+            "id": 14,
+            "key": "ink_cartridges",
+            "display_name": "Tinteiros",
+            "eletronico": true,
+            "aliases": [
+                "printer_toner_cartridges",
+                "printer_inkjet_cartridges",
+                "printer_cartridges"
+            ]
+        },
+        {
+            "id": 15,
+            "key": "textiles",
+            "display_name": "Têxteis",
+            "eletronico": false,
+            "aliases": [
+                "household",
+                "belts",
+                "shoes",
+                "clothes",
+                "handbags",
+                "carpets"
+            ]
+        },
+        {
+            "id": 16,
+            "key": "tyres",
+            "display_name": "Pneus",
+            "eletronico": false,
+            "aliases": [
+                "tyre"
+            ]
+        },
+        {
+            "id": 17,
+            "key": "madeira",
+            "display_name": "Madeira e Cortiça",
+            "eletronico": false,
+            "aliases": [
+                "wood",
+                "chipboard",
+                "pallets",
+                "cork"
+            ]
+        },
+        {
+            "id": 18,
+            "key": "mobiliario",
+            "display_name": "Mobiliário",
+            "eletronico": false,
+            "aliases": [
+                "couches",
+                "furniture",
+                "mattresses"
+            ]
+        },
+        {
+            "id": 19,
+            "key": "entulho",
+            "display_name": "Entulho",
+            "eletronico": false,
+            "aliases": [
+                "concrete",
+                "rubble"
+            ]
+        },
+        {
+            "id": 20,
+            "key": "medicamentos",
+            "display_name": "Medicamentos",
+            "eletronico": false,
+            "aliases": [
+                "drugs"
+            ]
+        },
+        {
+            "id": 21,
+            "key": "velas",
+            "display_name": "Velas",
+            "eletronico": false,
+            "aliases": [
+                "candles"
+            ]
+        },
+        {
+            "id": 22,
+            "key": "electronics_repair",
+            "display_name": "Reparação de eletrónicos",
+            "eletronico": true,
+            "aliases": [
+                "electronics",
+                "electronics_repair_mobile_phone",
+                "electronics_repair_computer",
+                "electronics_repair_computer_phone",
+                "electronics_repair_mobile_phone_computer",
+                "electronics_repair_phone_computer",
+                "electronics_repair_photo"
+            ]
+        },
+        {
+            "id": 23,
+            "key": "ecoponto",
+            "display_name": "Ecoponto",
+            "eletronico": false,
+            "aliases": [
+                "ecopontos"
+            ]
+        },
+        {
+            "id": 24,
+            "key": "ecoilha",
+            "display_name": "Ecoilha",
+            "eletronico": false,
+            "aliases": [
+                "ecoilhas"
+            ]
+        }
+    ]
+}

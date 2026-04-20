@@ -1,35 +1,8 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informações - ReciclaTech</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}Informações - ReciclaTech{% endblock %}
 
-<header class="header">
-
-    <div class="logo">
-        RECICLATECH ♻️
-    </div>
-
-    <nav class="menu">
-        <a href="index.html">HOME</a>
-        <a href="mapa.html">MAPA</a>
-        <a href="classificacao.html">CLASSIFICAÇÃO</a>
-        <a href="informacoes.html" class="ativo">INFORMAÇÕES</a>
-        <a href="dados.html">DADOS</a>
-        <a href="contacto.html">CONTACTO</a>
-    </nav>
-
-    <div class="auth">
-        <a href="login.html" class="login">LOGIN</a>
-        <a href="registo.html" class="registar">REGISTAR</a>
-    </div>
-
-</header>
+{% block content %}
 
 <main style="padding: 60px 20px; max-width: 900px; margin: auto;">
 
@@ -62,9 +35,4 @@
 
 </main>
 
-<footer>
-    <p>© 2026 ReciclaTech - Todos os direitos reservados</p>
-</footer>
-
-</body>
-</html>
+{% endblock %}

@@ -1,95 +1,37 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Verificar Email - ReciclaTech</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-body{
-    font-family:'Poppins',sans-serif;
-    background:#0b0b0b;
-    color:white;
-    margin:0;
-}
-.form-container{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-}
-form{
-    background:#111;
-    padding:30px;
-    border-radius:10px;
-    width:380px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.5);
-}
-form h2{
-    text-align:center;
-    margin-bottom:16px;
-}
-label{
-    display:block;
-    margin-bottom:6px;
-    font-weight:500;
-}
-input[type="email"], input[type="text"]{
-    width:100%;
-    padding:10px;
-    margin-bottom:15px;
-    border:none;
-    border-radius:6px;
-    background:#1f2937;
-    color:white;
-}
-button{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:6px;
-    background:#16a34a;
-    color:white;
-    cursor:pointer;
-    font-size:16px;
-}
-button:hover{
-    background:#22c55e;
-}
-.back-link{
-    display:block;
-    text-align:center;
-    margin-top:15px;
-    color:#aaa;
-    text-decoration:none;
-}
-</style>
-</head>
-<body>
-<div class="form-container">
-    <form action="/verificar-email" method="post">
-        <h2>Verificar Email</h2>
-        <p style="margin-bottom: 16px; color:#cfcfcf;">Introduz o codigo que recebeste por email.</p>
+{% extends "base.html" %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <div style="margin-bottom: 16px;">
-            {% for category, message in messages %}
-            <p style="padding: 8px; border-radius: 6px; background:#1f2937; color:white;">{{ message }}</p>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% endwith %}
+{% block title %}Verificar Email - ReciclaTech{% endblock %}
 
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" value="{{ email_pendente or '' }}" placeholder="teu@email.com" required>
+{% block extra_css %}
+<link rel="stylesheet" href="/css/verificar-email.css">
+{% endblock %}
 
-        <label for="codigo">Codigo de verificacao</label>
-        <input type="text" id="codigo" name="codigo" placeholder="Ex: 123456" maxlength="6" required>
+{% block content %}
+<main class="email-verification-page">
+    <div class="form-container">
+        <form class="verification-form" action="/verificar-email" method="post">
+            <h2>Verificar Email</h2>
+            <p class="instruction-text">Introduz o código que recebeste por email.</p>
 
-        <button type="submit">Verificar</button>
-        <a href="/login" class="back-link">Ir para login</a>
-    </form>
-</div>
-</body>
-</html>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="messages">
+                {% for category, message in messages %}
+                <p class="message-item">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="{{ email_pendente or '' }}" placeholder="teu@email.com" required>
+
+            <label for="codigo">Código de Verificação</label>
+            <input type="text" id="codigo" name="codigo" placeholder="Ex: 123456" maxlength="6" required>
+
+            <button type="submit">Verificar</button>
+            <a href="/login" class="back-link">Ir para login</a>
+        </form>
+    </div>
+</main>
+{% endblock %}

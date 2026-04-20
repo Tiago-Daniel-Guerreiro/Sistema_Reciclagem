@@ -286,6 +286,26 @@
         padding: 5px !important;
         white-space: nowrap;
     }
+
+    .leaflet-control-attribution-author {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        background: #fff;
+        border-radius: 4px;
+        padding: 2px 4px 2px 4px !important;
+        margin: 4px !important;
+        opacity: 0.35;
+        transition: opacity 0.3s ease;
+    }
+
+    .leaflet-control-attribution-author:hover {
+        opacity: 0.9;
+    }
+
+    .leaflet-control-attribution-author strong {
+        font-weight: 600;
+    }
 }
 
 @layer base {

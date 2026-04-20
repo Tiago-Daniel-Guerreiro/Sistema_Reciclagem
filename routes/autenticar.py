@@ -1,10 +1,14 @@
-from flask import Blueprint, request, render_template, redirect, url_for, flash, session
-from database.sistema import registrar_usuario, verificar_login, confirmar_email_por_codigo
+from flask import Blueprint, request, render_template, redirect, url_for, flash, session, jsonify
+from database.sistema import registrar_usuario, verificar_login, confirmar_email_por_codigo, reenviar_codigo
+import re
 
 autenticar_route = Blueprint('autenticar', __name__)
 
+
+def _validar_codigo_format(codigo):
+    return bool(re.match(r'^[A-Z0-9]{6}-[A-Z0-9]{6}$', codigo.upper()))
+
 @autenticar_route.route('/registo', methods=['GET', 'POST'])
-@autenticar_route.route('/registo.html', methods=['GET', 'POST'])
 def registo():
     if request.method == 'POST':
         nome = request.form.get('nome')
@@ -43,7 +47,6 @@ def registo():
 
 
 @autenticar_route.route('/login', methods=['GET', 'POST'])
-@autenticar_route.route('/login.html', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -54,7 +57,13 @@ def login():
         if user:
             if user.get("erro") == "email_nao_verificado":
                 session["email_pendente_verificacao"] = email
-                flash("Precisas confirmar o teu email antes de entrar.", "warning")
+                flash("Precisas confirmar o teu email antes de entrar. Verifica o teu email com o código.", "warning")
+                return redirect(url_for("autenticar.verificar_email"))
+            
+            if user.get("erro") == "codigo_expirado":
+                session["email_pendente_verificacao"] = email
+                flash("Código de verificação expirou. Pedimos um novo código por email.", "warning")
+                reenviar_codigo(email)
                 return redirect(url_for("autenticar.verificar_email"))
 
             session['user_id'] = user['id']
@@ -78,30 +87,30 @@ def logout():
 
 
 @autenticar_route.route('/verificar-email', methods=['GET', 'POST'])
-@autenticar_route.route('/verificar-email.html', methods=['GET', 'POST'])
 def verificar_email():
     email_pendente = session.get("email_pendente_verificacao", "")
 
     if request.method == "POST":
         email = (request.form.get("email") or "").strip()
-        codigo = (request.form.get("codigo") or "").strip()
+        codigo = (request.form.get("codigo") or "").strip().upper()
 
         if not email or not codigo:
             flash("Preenche email e código de verificação.", "warning")
             return render_template("verificar_email.html", email_pendente=email_pendente)
 
-        if not codigo.isdigit() or len(codigo) != 6:
-            flash("O código deve ter 6 dígitos numéricos.", "warning")
+        # Validar formato: 6chars-6chars
+        if not _validar_codigo_format(codigo):
+            flash("Formato inválido. Código deve ser: ABC123-DEF456", "warning")
             return render_template("verificar_email.html", email_pendente=email)
 
         confirmado = confirmar_email_por_codigo(email, codigo)
 
         if confirmado:
             session.pop("email_pendente_verificacao", None)
-            flash("Email confirmado com sucesso. Já podes iniciar sessão.", "success")
+            flash("Email confirmado com sucesso! Já podes iniciar sessão.", "success")
             return redirect(url_for("autenticar.login"))
 
-        flash("Código inválido para este email.", "danger")
+        flash("Código inválido, expirado ou não corresponde a este email.", "danger")
         return render_template("verificar_email.html", email_pendente=email)
 
     return render_template("verificar_email.html", email_pendente=email_pendente)
@@ -111,3 +120,27 @@ def verificar_email():
 def confirmar_email_legacy(token):
     flash("Sistema antigo desativado.", "info")
     return redirect(url_for("autenticar.login"))
+
+
+@autenticar_route.route('/api/reenviar-codigo', methods=['POST'])
+def reenviar_codigo_route():
+    email = (request.form.get('email') or request.json.get('email') or "").strip()
+    
+    if not email:
+        return jsonify({"sucesso": False, "erro": "email_obrigatorio"}), 400
+    
+    resultado = reenviar_codigo(email)
+    
+    if resultado.get("sucesso"):
+        return jsonify({
+            "sucesso": True,
+            "mensagem": "Código reenviado para o email com sucesso!"
+        }), 200
+    
+    if resultado.get("erro") == "usuario_nao_encontrado":
+        return jsonify({"sucesso": False, "erro": "usuario_nao_encontrado"}), 404
+    
+    if resultado.get("erro") == "email_ja_verificado":
+        return jsonify({"sucesso": False, "erro": "email_ja_verificado"}), 409
+    
+    return jsonify({"sucesso": False, "erro": resultado.get("erro")}), 500
