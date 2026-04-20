@@ -9,12 +9,16 @@ from .filters import filter_and_format_elements
 from core.config import PORTUGAL_BBOX
 
 DEFAULT_OVERPASS_URL = "https://overpass-api.de/api/interpreter"
-DEFAULT_OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 OVERPASS_FALLBACK_URLS = [
-	"https://overpass-api.de/api/interpreter",
 	"https://overpass.kumi.systems/api/interpreter",
 ]
 DEFAULT_TIMEOUT = 120
+
+DEFAULT_PT_BBOXES = [
+	(36.8, -9.7, 42.2, -6.0),      # Continental
+	(37.7, -31.3, 39.7, -24.0),    # Açores
+	(32.6, -17.3, 32.8, -16.7),    # Madeira
+]
 
 def build_overpass_query(bbox: tuple[float, float, float, float], timeout_seconds: int) -> str:
 	south, west, north, east = bbox
@@ -59,7 +63,7 @@ class OverpassClient(BaseClient):
 					base_url,
 					data={"data": query},
 					headers={"Content-Type": "application/x-www-form-urlencoded"},
-					timeout=self.timeout_seconds + 30,
+					timeout=self.timeout_seconds + 10,
 				)
 				response.raise_for_status()
 				body = response.json()
@@ -103,10 +107,34 @@ class OverpassClient(BaseClient):
 			raise last_error
 		return []
 
+	def fetch_elements_multi(self, bboxes: list[tuple[float, float, float, float]] | None = None) -> list[dict]:
+		"""Fetch elements from multiple bboxes to avoid overload"""
+		target_bboxes = bboxes or DEFAULT_PT_BBOXES
+		all_elements: list[dict] = []
+		seen: set[str] = set()
+
+		for bbox in target_bboxes:
+			try:
+				for element in self.fetch_elements(bbox=bbox):
+					element_id = element.get("id")
+					element_type = element.get("type")
+					if element_id is None or not element_type:
+						continue
+					key = f"{element_type}:{element_id}"
+					if key in seen:
+						continue
+					seen.add(key)
+					all_elements.append(element)
+			except Exception as e:
+				print(f"[Overpass] Erro na bbox {bbox}: {e}", flush=True)
+				continue
+
+		return all_elements
+
 
 
 	def fetch_raw_data(self) -> dict | list:
-		elements = self.fetch_elements()
+		elements = self.fetch_elements_multi()
 		return {
 			"elements": elements,
 			"metadata": {

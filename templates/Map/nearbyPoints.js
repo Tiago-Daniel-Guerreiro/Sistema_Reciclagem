@@ -11,8 +11,23 @@ const NearbyPointsModule = (function () {
     function obterPontosProximos(lat, lng) {
         const pontos = RecolhaManager.getPontos() || [];
 
+        // Obter filtros selecionados
+        const filtrosSelecionados = new Set([
+            ...Array.from(document.querySelectorAll('.residuo-checkbox-eletronico:checked')).map(c => c.dataset.tipo),
+            ...Array.from(document.querySelectorAll('.residuo-checkbox-geral:checked')).map(c => c.dataset.tipo)
+        ]);
+
         return pontos.length === 0 ? [] : pontos
-            .filter(p => ModoBreno.isActive() ? ModoBreno.isPontoEmLisboa_Ponto(p) : true)
+            .filter(p => {
+                if (ModoBreno.isActive() && !ModoBreno.isPontoEmLisboa_Ponto(p)) return false;
+                if (filtrosSelecionados.size === 0) return false;  // Se nenhum filtro, não mostrar
+
+                // Verificar se ponto tem alguma das categorias selecionadas
+                if (p.recolha && p.dados_recolha && Array.isArray(p.dados_recolha.categorias)) {
+                    return p.dados_recolha.categorias.some(cat => filtrosSelecionados.has(String(cat)));
+                }
+                return false;
+            })
             .map(p => ({ ponto: p, distancia: Utils.calculateDistance(lat, lng, p.lat, p.lng) }))
             .sort((a, b) => a.distancia - b.distancia)
             .slice(0, MAX_POINTS);

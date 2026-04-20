@@ -100,17 +100,19 @@ def _init_data(db, sync_service, db_file_exists, data_folder):
         except Exception as e:
             print(f"[App] Erro no retry: {e}", flush=True)
 
-def _register_routes(app, static_folder): 
-    @app.get("/")
-    def index():
+def _register_routes(app, static_folder):
+    @app.get("/css/<path:filename>")
+    def serve_css(filename):
+        return send_from_directory(PROJECT_ROOT / "templates" / "css", filename)
+    
+    @app.get("/map/")
+    def serve_map_index():
         return send_from_directory(static_folder, "index.html")
-
+    
     @app.get("/map/<path:filename>")
     def serve_map_assets(filename):
         return send_from_directory(static_folder, filename)
 
-
-# Cria a aplicação global
 app = create_app()
 
 if __name__ == "__main__":

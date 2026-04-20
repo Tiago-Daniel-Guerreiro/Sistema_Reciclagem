@@ -5,6 +5,7 @@ const PlaceRenderer = {
         const recolha = raw.recolha === true;
 
         const categorias = recolha && Array.isArray(raw.dados_recolha?.categorias) ? raw.dados_recolha.categorias : [];
+        const fontes = recolha && raw.dados_recolha?.fontes ? raw.dados_recolha.fontes : null;
 
         return {
             id: Format.firstValid([raw.id, raw.place_id, raw.osm_id]),
@@ -12,7 +13,7 @@ const PlaceRenderer = {
             lat: lat,
             lng: lng,
             recolha,
-            dados_recolha: recolha ? { categorias } : null
+            dados_recolha: recolha ? { categorias, fontes } : null
         };
     },
 
@@ -79,6 +80,21 @@ const PlaceRenderer = {
             html += `<div class="det-section">
     <div class="det-label-title">Tipos de Resíduos Aceites</div>
     <div class="det-tags">${tags}</div>
+</div>`;
+        }
+
+        if (essential.recolha && essential.dados_recolha?.fontes) {
+            const fontesArray = Array.isArray(essential.dados_recolha.fontes)
+                ? essential.dados_recolha.fontes
+                : [essential.dados_recolha.fontes];
+
+            const fontesHtml = fontesArray
+                .map(fonte => `<span class="det-fonte-tag">${Utils.escapeHtml(String(fonte))}</span>`)
+                .join('');
+
+            html += `<div class="det-section">
+    <div class="det-label-title">Fontes de Dados</div>
+    <div class="det-fontes">${fontesHtml}</div>
 </div>`;
         }
 

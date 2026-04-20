@@ -1,11 +1,11 @@
-from flask import Blueprint, jsonify, request, make_response
+from flask import Blueprint, jsonify, request, make_response, current_app
 
 api_route = Blueprint("api", __name__, url_prefix="/api")
 
 
 @api_route.get("/sync/status")
 def api_sync_status():
-    db = request.app.config["DB_MANAGER"]
+    db = current_app.config["DB_MANAGER"]
     all_sources = ["overpass", "dadosabertos", "eureciclo"]
     status_map = {}
     for source in all_sources:
@@ -19,7 +19,7 @@ def api_sync_status():
 
 @api_route.get("/categorias")
 def api_categorias():
-    db = request.app.config["DB_MANAGER"]
+    db = current_app.config["DB_MANAGER"]
     since = request.args.get("since")
     try:
         data = db.list_categories(since=since)
@@ -32,7 +32,7 @@ def api_categorias():
 @api_route.get("/cache-info")
 def api_cache_info():
     """Retorna timestamp de última atualização do cache"""
-    db = request.app.config["DB_MANAGER"]
+    db = current_app.config["DB_MANAGER"]
     try:
         last_update = db.get_last_update_time()
         response = make_response("", 204)
@@ -46,7 +46,7 @@ def api_cache_info():
 
 @api_route.get("/pontos")
 def api_pontos():
-    db = request.app.config["DB_MANAGER"]
+    db = current_app.config["DB_MANAGER"]
     try:
         limit = int(request.args.get("limit", 1000))
         offset = int(request.args.get("offset", 0))

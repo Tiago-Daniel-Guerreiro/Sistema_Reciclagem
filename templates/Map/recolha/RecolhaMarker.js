@@ -91,7 +91,7 @@ const RecolhaMarker = (function () {
     }
 
     async function _renderBatch(pontos, signal) {
-        if (!pontos?.length) return;
+        if (!pontos?.length || !_clusterGroup) return;
 
         let index = 0;
         let batchNum = 0;
@@ -109,7 +109,7 @@ const RecolhaMarker = (function () {
                 }
             }
 
-            if (toAdd.length > 0) {
+            if (toAdd.length > 0 && _clusterGroup) {
                 _clusterGroup.addLayers(toAdd);
             }
 
@@ -128,7 +128,7 @@ const RecolhaMarker = (function () {
     }
 
     async function removeMarkersEmChunks(ids, signal) {
-        if (!ids?.length) return;
+        if (!ids?.length || !_clusterGroup) return;
 
         let index = 0;
 
@@ -144,7 +144,7 @@ const RecolhaMarker = (function () {
                 }
             }
 
-            if (toRemove.length > 0) {
+            if (toRemove.length > 0 && _clusterGroup) {
                 _clusterGroup.removeLayers(toRemove);
             }
 
@@ -157,6 +157,12 @@ const RecolhaMarker = (function () {
     }
 
     async function aplicarFiltros(todosPontos, tiposSet) {
+        // Se cluster foi limpado mas agora tem filtros, reconstruir
+        if (!_clusterGroup && tiposSet.size > 0) {
+            const markersLayer = MapModule.getMarkersLayerGroup?.();
+            if (markersLayer) init(markersLayer);
+        }
+
         if (!_clusterGroup) return;
 
         const tiposSignature = _buildTiposSignature(tiposSet);
@@ -186,7 +192,14 @@ const RecolhaMarker = (function () {
 
     function limpar() {
         if (_abortController) _abortController.abort();
-        if (_clusterGroup) _clusterGroup.clearLayers();
+        if (_clusterGroup) {
+            _clusterGroup.clearLayers();
+            // Remove cluster da camada e limpa referência para forçar recriação
+            const map = MapModule.getMap?.();
+            if (map && _clusterGroup) map.removeLayer(_clusterGroup);
+            _clusterGroup = null;
+        }
+        _markers = {};
         _visibleIds.clear();
         _lastTiposSignature = '';
         _lastPontosSource = null;

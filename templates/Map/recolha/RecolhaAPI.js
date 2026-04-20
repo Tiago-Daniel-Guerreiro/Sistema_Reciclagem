@@ -91,7 +91,7 @@ const RecolhaAPI = (function () {
         }
 
         try {
-            const res = await fetch('../data/snapshot.json');
+            const res = await fetch('./data/snapshot.json');
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
             localStorage.setItem('snapshot_cache', JSON.stringify(data));

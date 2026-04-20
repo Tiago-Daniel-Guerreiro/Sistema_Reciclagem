@@ -15,11 +15,16 @@
     </p>
 
     <div class="map-wrapper" id="mapWrapper">
+        <div class="map-header" id="mapHeader" style="display: none;">
+            <h1 class="map-header-title">Mapa Maximizado</h1>
+            <button class="map-btn map-btn-small" id="btnExitMaximize" title="Sair de maximização">✕ Sair</button>
+        </div>
         <iframe
             src="/map/"
             title="Mapa interativo ReciclaTech"
             loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade">
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen>
         </iframe>
     </div>
 
@@ -29,53 +34,45 @@
     </div>
 </main>
 
-<div class="maximize-mode" id="maximizeMode">
-    <div class="maximize-header">
-        <h1 class="maximize-title">Mapa Maximizado</h1>
-        <button class="map-btn" id="btnExitMaximize" title="Sair de maximização">✕ Sair</button>
-    </div>
-    <div class="maximize-map">
-        <iframe src="/map/" title="Mapa maximizado" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    </div>
-</div>
-
 <script>
     const btnMaximize = document.getElementById('btnMaximize');
     const btnFullscreen = document.getElementById('btnFullscreen');
     const btnExitMaximize = document.getElementById('btnExitMaximize');
-    const maximizeMode = document.getElementById('maximizeMode');
-
-    // Maximizar
-    btnMaximize.addEventListener('click', () => {
-        maximizeMode.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    });
+    const mapWrapper = document.getElementById('mapWrapper');
+    const mapHeader = document.getElementById('mapHeader');
+    const iframeMap = mapWrapper.querySelector('iframe');
 
     // Tela cheia
     btnFullscreen.addEventListener('click', async () => {
-        const mapWrapper = document.getElementById('mapWrapper');
         try {
-            switch (true) {
-                case mapWrapper.requestFullscreen: await mapWrapper.requestFullscreen(); break;
-                case mapWrapper.webkitRequestFullscreen: await mapWrapper.webkitRequestFullscreen(); break;
-                case mapWrapper.mozRequestFullScreen: await mapWrapper.mozRequestFullScreen(); break;
-                case mapWrapper.msRequestFullscreen: await mapWrapper.msRequestFullscreen(); break;
-            }
+            if (iframeMap.requestFullscreen) await iframeMap.requestFullscreen();
+            else if (iframeMap.webkitRequestFullscreen) await iframeMap.webkitRequestFullscreen();
+            else if (iframeMap.mozRequestFullscreen) await iframeMap.mozRequestFullscreen();
+            else if (iframeMap.msRequestFullscreen) await iframeMap.msRequestFullscreen();
         } catch (err) {
-            console.error(`Error attempting to enable fullscreen: ${err.message}`);
+            console.error(`Fullscreen error: ${err.message}`);
         }
+    });
+
+    // Maximizar
+    btnMaximize.addEventListener('click', () => {
+        mapWrapper.classList.add('maximized');
+        mapHeader.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     });
 
     // Sair do modo maximizado
     btnExitMaximize.addEventListener('click', () => {
-        maximizeMode.classList.remove('active');
+        mapWrapper.classList.remove('maximized');
+        mapHeader.style.display = 'none';
         document.body.style.overflow = 'auto';
     });
 
     // Sair com ESC
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && maximizeMode.classList.contains('active')) {
-            maximizeMode.classList.remove('active');
+        if (e.key === 'Escape' && mapWrapper.classList.contains('maximized')) {
+            mapWrapper.classList.remove('maximized');
+            mapHeader.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
     });

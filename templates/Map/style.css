@@ -376,6 +376,8 @@
     }
 
     #sidebar {
+        border-radius: 16px;
+        border: solid 1px #ddd;
         width: max(30%, 340px);
         height: 100vh;
         z-index: 1001;
@@ -1001,6 +1003,25 @@
     .det-tag {
         display: inline-block;
         background-color: #007bff;
+        color: white;
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        width: auto;
+        user-select: none;
+        white-space: nowrap;
+    }
+
+    .det-fontes {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .det-fonte-tag {
+        display: inline-block;
+        background-color: #6c757d;
         color: white;
         font-size: 11px;
         padding: 4px 8px;
