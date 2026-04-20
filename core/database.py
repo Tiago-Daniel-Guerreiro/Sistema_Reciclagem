@@ -4,6 +4,7 @@ import os
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
+from typing import Iterator, ContextManager
 from core.category_catalog import category_metadata, known_categories
 from core.point_filters import remove_points_without_categories_sql, remove_points_outside_portugal_sql
 
@@ -11,14 +12,13 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 class DatabaseManager:
-    def __init__(self, db_path: str, merge_distance_meters: float = 50.0):
+    def __init__(self, db_path: str):
         self.db_path = os.path.abspath(db_path)
-        self.merge_distance_meters = max(float(merge_distance_meters), 0.0)
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         self.init_db()
 
     @contextmanager
-    def connection(self):
+    def connection(self) -> ContextManager[sqlite3.Connection]:
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         try:
@@ -43,15 +43,7 @@ class DatabaseManager:
             
             conn.execute(
                 """
-                CREATE TABLE IF NOT EXISTS ponto_merges (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    created_at TEXT NOT NULL
-                )
-                """
-            )
-            
-            conn.execute(
-                """
+
                 CREATE TABLE IF NOT EXISTS pontos (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     lat REAL NOT NULL,
@@ -59,12 +51,9 @@ class DatabaseManager:
                     fonte_id INTEGER NOT NULL,
                     source_id TEXT,
                     is_removed INTEGER NOT NULL DEFAULT 0,
-                    merged_into_id INTEGER,
                     nome TEXT,
                     created_at TEXT NOT NULL,
-                    updated_at TEXT NOT NULL,
-                    FOREIGN KEY (fonte_id) REFERENCES fontes(id),
-                    FOREIGN KEY (merged_into_id) REFERENCES ponto_merges(id)
+                    updated_at TEXT NOT NULL
                 )
                 """
             )
@@ -113,22 +102,57 @@ class DatabaseManager:
                     nome TEXT NOT NULL,
                     email TEXT UNIQUE NOT NULL,
                     password_hash TEXT NOT NULL,
-                    tipo TEXT NOT NULL CHECK (tipo IN ('admin','utilizador')),
-                    regiao TEXT NOT NULL,
+                    tipo INTEGER NOT NULL DEFAULT 0 CHECK (tipo IN (0,1)),
                     receber_notificacoes INTEGER NOT NULL DEFAULT 1 CHECK (receber_notificacoes IN (0,1)),
                     email_verificado INTEGER NOT NULL DEFAULT 0,
-                    codigo_verificacao TEXT,
-                    codigo_verificacao_criado_em TEXT,
                     data_registo DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
                 """
             )
             
-            # Migração: adicionar coluna se não existir (para instâncias antigas)
-            try:
-                conn.execute("ALTER TABLE utilizadores ADD COLUMN codigo_verificacao_criado_em TEXT")
-            except Exception:
-                pass  # Coluna já existe
+            # Tabela de códigos de verificação de email
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS verificacao_email (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    utilizador_id INTEGER NOT NULL UNIQUE,
+                    codigo TEXT NOT NULL,
+                    criado_em TEXT NOT NULL,
+                    FOREIGN KEY (utilizador_id) REFERENCES utilizadores(id) ON DELETE CASCADE
+                )
+                """
+            )
+            
+            # Tabela de reportes de pontos
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS ponto_reports (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ponto_id INTEGER NOT NULL,
+                    utilizador_id INTEGER NOT NULL,
+                    tipo_problema TEXT NOT NULL,
+                    categorias_json TEXT,
+                    comentario TEXT,
+                    criado_em TEXT NOT NULL,
+                    FOREIGN KEY (ponto_id) REFERENCES pontos(id) ON DELETE CASCADE,
+                    FOREIGN KEY (utilizador_id) REFERENCES utilizadores(id) ON DELETE CASCADE
+                )
+                """
+            )
+            
+            # Tabela de códigos de reset de senha
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS reset_senha (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    utilizador_id INTEGER NOT NULL,
+                    codigo TEXT NOT NULL,
+                    criado_em TEXT NOT NULL,
+                    utilizado INTEGER NOT NULL DEFAULT 0,
+                    FOREIGN KEY (utilizador_id) REFERENCES utilizadores(id) ON DELETE CASCADE
+                )
+                """
+            )
                         
             now = now_iso()
             for cat in known_categories():
@@ -153,8 +177,14 @@ class DatabaseManager:
             remove_points_without_categories_sql(conn, now)
             remove_points_outside_portugal_sql(conn, now)
             conn.execute("PRAGMA foreign_keys = ON")
+            
+            # Criar admin padrão se não existir
+            self._create_default_admin(conn)
 
     def _get_or_create_fonte_id(self, conn: sqlite3.Connection, fonte_nome: str, now: str) -> int:
+        # Garantir que fonte_nome é string
+        fonte_nome = str(fonte_nome) if fonte_nome else "desconhecida"
+        
         row = conn.execute("SELECT id FROM fontes WHERE nome = ?", (fonte_nome,)).fetchone()
         if row:
             return int(row["id"])
@@ -164,94 +194,32 @@ class DatabaseManager:
         last_id = cursor.lastrowid
         return int(last_id) if last_id is not None else 1
 
-    def _distance_meters(self, lat1: float, lng1: float, lat2: float, lng2: float) -> float:
-        avg_lat_rad = math.radians((lat1 + lat2) / 2.0)
-        lat_m = (lat2 - lat1) * 111_320.0
-        lng_m = (lng2 - lng1) * 111_320.0 * math.cos(avg_lat_rad)
-        return math.sqrt(lat_m * lat_m + lng_m * lng_m)
-
-    def apply_point_merges(self, conn: sqlite3.Connection) -> dict:
-        if self.merge_distance_meters <= 0:
-            return {"pairs": 0, "removed": 0}
-
-        now = now_iso()
+    def _create_default_admin(self, conn: sqlite3.Connection) -> None:
+        import os
+        from seguranca import encrypt_password
         
+        admin_password = os.getenv("ADMIN_PASSWORD")
+        if not admin_password:
+            return
+        
+        admin_email = os.getenv("ADMIN_EMAIL", "admin@reciclatech.pt")
+        
+        # Verificar se admin já existe
         cursor = conn.cursor()
-        cursor.execute(
-            """
-            WITH candidates AS (
-                SELECT p1.id AS p1_id,  p2.id AS p2_id,
-                       (CAST(p1.lat - p2.lat AS REAL) * 111320) * 
-                       (CAST(p1.lat - p2.lat AS REAL) * 111320) +
-                       (CAST((p1.lng - p2.lng) * COS(p1.lat * 3.14159 / 180) * 111320 AS REAL)) *
-                       (CAST((p1.lng - p2.lng) * COS(p1.lat * 3.14159 / 180) * 111320 AS REAL)) as dist_sq
-                FROM pontos p1, pontos p2
-                WHERE p1.is_removed = 0 AND p2.is_removed = 0 AND p1.id < p2.id
-            ),
-            within_distance AS (
-                SELECT p1_id, p2_id FROM candidates 
-                WHERE SQRT(dist_sq) <= ?
-            ),
-            merge_groups AS (
-                SELECT p1_id as pid, p2_id as group_id FROM within_distance
-                UNION ALL
-                SELECT p2_id, p2_id FROM within_distance
-                UNION ALL
-                SELECT id, id FROM pontos WHERE is_removed = 0
-            )
-            INSERT INTO ponto_merges (created_at) VALUES (?)
-            """,
-            (self.merge_distance_meters, now),
-        )
+        cursor.execute("SELECT id FROM utilizadores WHERE tipo = 1")
         
-        merge_record_id = cursor.lastrowid
+        if cursor.fetchone():
+            return
         
-        conn.execute(
-            """
-            WITH merge_groups AS (
-                SELECT p1.id AS canonical,
-                       GROUP_CONCAT(p2.id, ',') AS merged_ids,
-                       AVG(p1.lat) as avg_lat,
-                       AVG(p1.lng) as avg_lng
-                FROM pontos p1
-                JOIN pontos p2 ON (
-                    (p2.lat BETWEEN p1.lat - ? AND p1.lat + ?
-                     AND p2.lng BETWEEN p1.lng - ? AND p1.lng + ?)
-                    AND p1.is_removed = 0 AND p2.is_removed = 0
-                )
-                WHERE p1.id <= p2.id
-                GROUP BY p1.id
-                HAVING COUNT(*) > 1
-            )
-            UPDATE pontos
-            SET lat = (SELECT AVG(lat) FROM pontos WHERE id IN (
-                       SELECT canonical FROM merge_groups)),
-                lng = (SELECT AVG(lng) FROM pontos WHERE id IN (
-                       SELECT canonical FROM merge_groups)),
-                merged_into_id = ?,
-                updated_at = ?
-            WHERE id IN (SELECT canonical FROM merge_groups)
-            """,
-            (self.merge_distance_meters / 111_320.0, self.merge_distance_meters / 111_320.0,
-             self.merge_distance_meters / 80_000.0, self.merge_distance_meters / 80_000.0,
-             merge_record_id, now),
-        )
+        # Criar admin
+        admin_pass_cript = encrypt_password(admin_password)
+        cursor.execute("""
+            INSERT INTO utilizadores
+            (nome, email, password_hash, tipo, receber_notificacoes, email_verificado)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, ("Administrador", admin_email, admin_pass_cript, 1, 1, 1))
         
-        merged_count = conn.execute(
-            """
-            UPDATE pontos
-            SET is_removed = 1, merged_into_id = ?, updated_at = ?
-            WHERE id != (
-                SELECT MIN(id) FROM pontos WHERE merged_into_id = ?
-            ) AND merged_into_id = ?
-            """,
-            (merge_record_id, now, merge_record_id, merge_record_id),
-        ).rowcount
-        
-        return {
-            "pairs": merged_count,
-            "removed": merged_count,
-        }
+        print(f"[Database] Admin criado: {admin_email}")
 
     def insert_points(self, points: list[dict]) -> int:
         created = 0
@@ -259,23 +227,31 @@ class DatabaseManager:
 
         with self.connection() as conn:            
             for point in points:
-                ponto_nome = point.get("nome", "Ponto de Recolha")
+                # Garantir tipos corretos
+                ponto_nome = str(point.get("nome", "Ponto de Recolha"))
                 categorias = point.get("categorias", [])
                 fontes = point.get("fontes", [])
-                fonte_principal = fontes[0] if fontes else "desconhecida"
+                
+                # Garantir que fonte_principal é string
+                if fontes:
+                    fonte_principal = str(fontes[0])
+                else:
+                    fonte_principal = "desconhecida"
+                
                 fonte_value = self._get_or_create_fonte_id(conn, fonte_principal, now)
                 
                 lat = float(point["lat"])
                 lng = float(point["lng"])
                 
-                # Check dedup: same source + coords = skip
+                # Ignorar duplicados exactos: mesma fonte + coords iguais
                 existing = conn.execute(
-                    "SELECT id FROM pontos WHERE source_id = ? AND ABS(lat - ?) < 0.0001 AND ABS(lng - ?) < 0.0001 LIMIT 1",
+                    "SELECT id FROM pontos WHERE source_id = ? AND ABS(lat - ?) < 0.00001 AND ABS(lng - ?) < 0.00001 LIMIT 1",
                     (fonte_principal, lat, lng)
                 ).fetchone()
                 
                 if existing:
-                    continue  # Skip duplicate
+                    print(f"[insert] Skipping duplicate: {fonte_principal} at ({lat}, {lng})", flush=True)
+                    continue  # Ignorar duplicado exacto
 
                 cursor = conn.cursor()
                 cursor.execute(
@@ -286,7 +262,9 @@ class DatabaseManager:
                 created += 1
 
                 for cat_key in categorias:
-                    meta = category_metadata(cat_key)
+                    # Garantir que cat_key é string
+                    cat_key_str = str(cat_key)
+                    meta = category_metadata(cat_key_str)
                     cat_id = int(meta["id"]) if meta.get("id") is not None else 999
                     
                     conn.execute(
@@ -378,12 +356,7 @@ class DatabaseManager:
 
     def list_points_api(self, limit: int = 1000, offset: int = 0, since: str | None = None) -> dict:
         with self.connection() as conn:
-            where_clause = f"""
-            WHERE p.is_removed = 0 AND (
-                p.merged_into_id IS NULL 
-                OR p.id IN (SELECT DISTINCT merged_into_id FROM pontos WHERE merged_into_id IS NOT NULL AND is_removed = 0)
-            )
-            """
+            where_clause = "WHERE p.is_removed = 0"
             params = []
             if since:
                 where_clause += " AND p.updated_at > ?"
@@ -391,16 +364,8 @@ class DatabaseManager:
             
             rows = conn.execute(
                 f"""
-                SELECT p.id, p.lat, p.lng, p.updated_at, p.nome, p.merged_into_id,
-                       CASE 
-                         WHEN p.merged_into_id IS NOT NULL THEN (
-                           SELECT GROUP_CONCAT(COALESCE(f2.nome, 'desconhecida'), ',')
-                           FROM pontos p2
-                           LEFT JOIN fontes f2 ON p2.fonte_id = f2.id
-                           WHERE p2.merged_into_id = p.merged_into_id AND p2.is_removed = 0
-                         )
-                         ELSE COALESCE(f.nome, 'desconhecida')
-                       END as fontes,
+                SELECT p.id, p.lat, p.lng, p.updated_at, p.nome,
+                       COALESCE(f.nome, 'desconhecida') as fontes,
                        GROUP_CONCAT(pc.categoria_id, ',') as cat_csv
                 FROM pontos p
                 LEFT JOIN fontes f ON p.fonte_id = f.id
@@ -454,23 +419,12 @@ class DatabaseManager:
             points = conn.execute(
                 """
                 SELECT p.id, p.lat, p.lng, p.nome,
-                       CASE 
-                         WHEN p.merged_into_id IS NOT NULL THEN (
-                           SELECT GROUP_CONCAT(f2.nome, ',')
-                           FROM pontos p2
-                           LEFT JOIN fontes f2 ON p2.fonte_id = f2.id
-                           WHERE p2.merged_into_id = p.merged_into_id AND p2.is_removed = 0
-                         )
-                         ELSE COALESCE(f.nome, 'desconhecida')
-                       END as fontes,
+                       COALESCE(f.nome, 'desconhecida') as fontes,
                        GROUP_CONCAT(pc.categoria_id, ',') as cat_csv
                 FROM pontos p
                 LEFT JOIN fontes f ON p.fonte_id = f.id
                 LEFT JOIN ponto_categorias pc ON pc.ponto_id = p.id
-                WHERE p.is_removed = 0 AND (
-                    p.merged_into_id IS NULL 
-                    OR p.id IN (SELECT DISTINCT merged_into_id FROM pontos WHERE merged_into_id IS NOT NULL AND is_removed = 0)
-                )
+                WHERE p.is_removed = 0
                 GROUP BY p.id
                 ORDER BY p.id
                 """
@@ -505,7 +459,6 @@ class DatabaseManager:
         }
 
     def get_last_update_time(self) -> datetime | None:
-        """Retorna a data de última atualização de pontos ou categorias"""
         with self.connection() as conn:
             # Obter a data mais recente entre pontos e categorias
             row = conn.execute(

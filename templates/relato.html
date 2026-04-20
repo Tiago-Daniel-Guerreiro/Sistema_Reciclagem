@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}Reportar Problema - ReciclaTech{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: #0b0b0b;
+        color: white;
+        margin: 0;
+    }
+    
+    .relato-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 40px 20px;
+    }
+    
+    .relato-form {
+        background: #111;
+        padding: 30px;
+        border-radius: 10px;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    
+    .relato-form h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #2ecc71;
+    }
+    
+    .ponto-info {
+        background: #1f2937;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border-left: 4px solid #2ecc71;
+    }
+    
+    .ponto-info p {
+        margin: 5px 0;
+        font-size: 14px;
+    }
+    
+    .ponto-info strong {
+        color: #2ecc71;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    input[type="radio"],
+    input[type="checkbox"] {
+        margin-right: 8px;
+        cursor: pointer;
+    }
+    
+    .radio-group,
+    .checkbox-group {
+        background: #1f2937;
+        padding: 15px;
+        border-radius: 6px;
+    }
+    
+    .radio-option,
+    .checkbox-option {
+        margin-bottom: 12px;
+        padding: 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .radio-option:hover,
+    .checkbox-option:hover {
+        background: #2d3748;
+    }
+    
+    .radio-option label,
+    .checkbox-option label {
+        margin: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+    
+    textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: none;
+        border-radius: 6px;
+        background: #1f2937;
+        color: white;
+        font-family: inherit;
+        min-height: 100px;
+        box-sizing: border-box;
+    }
+    
+    textarea::placeholder {
+        color: #aaa;
+    }
+    
+    button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        background: #16a34a;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        transition: background 0.3s;
+    }
+    
+    button:hover {
+        background: #22c55e;
+    }
+    
+    button:disabled {
+        background: #6b7280;
+        cursor: not-allowed;
+    }
+    
+    .mensagem {
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .mensagem.sucesso {
+        background: #10b981;
+        color: white;
+    }
+    
+    .mensagem.erro {
+        background: #ef4444;
+        color: white;
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    .categorias-incorretas-section {
+        display: none;
+    }
+    
+    .categorias-incorretas-section.show {
+        display: block;
+    }
+    
+    a.back-link {
+        display: inline-block;
+        margin-top: 15px;
+        color: #aaa;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    
+    a.back-link:hover {
+        color: #2ecc71;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="relato-container">
+    <div class="relato-form">
+        <h2>Reportar Problema</h2>
+        
+        <div class="ponto-info">
+            <p><strong>Ponto:</strong> {{ ponto.nome }}</p>
+            <p><strong>Localização:</strong> {{ ponto.latitude }}, {{ ponto.longitude }}</p>
+            <p><strong>Fonte:</strong> {{ ponto.fonte }}</p>
+        </div>
+        
+        <form id="relato-form" method="post">
+            <div id="mensagem" class="mensagem hidden"></div>
+            
+            <div class="form-group">
+                <label>Tipo de Problema:</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <label>
+                            <input type="radio" name="tipo_problema" value="nao_existe" required>
+                            <span>Ponto não existe</span>
+                        </label>
+                    </div>
+                    <div class="radio-option">
+                        <label>
+                            <input type="radio" name="tipo_problema" value="categorias_incorretas" required>
+                            <span>Categorias incorretas</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group categorias-incorretas-section" id="categorias-section">
+                <label>Categorias corretas:</label>
+                <div class="checkbox-group">
+                    {% for categoria in todas_categorias %}
+                    <div class="checkbox-option">
+                        <label>
+                            <input type="checkbox" name="categorias[]" value="{{ categoria.id }}"
+                                {% if categoria.id in categorias_ponto %}checked{% endif %}>
+                            <span>{{ categoria.nome_exibicao }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="comentario">Comentário adicional (opcional):</label>
+                <textarea name="comentario" id="comentario" placeholder="Descreve o problema ou sugestões..."></textarea>
+            </div>
+            
+            <button type="submit">Enviar Relatório</button>
+            <a href="javascript:history.back()" class="back-link">← Voltar</a>
+        </form>
+    </div>
+</div>
+
+<script>
+const tipoProblemaRadios = document.querySelectorAll('input[name="tipo_problema"]');
+const categoriasSection = document.getElementById('categorias-section');
+const relatorioForm = document.getElementById('relato-form');
+const mensagem = document.getElementById('mensagem');
+
+// Mostrar/ocultar seção de categorias
+tipoProblemaRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+        if (this.value === 'categorias_incorretas') {
+            categoriasSection.classList.add('show');
+        } else {
+            categoriasSection.classList.remove('show');
+        }
+    });
+});
+
+// Submeter formulário
+relatorioForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(relatorioForm);
+    const tipoProblema = formData.get('tipo_problema');
+    
+    // Validar que se for categorias_incorretas, tem que ter categorias selecionadas
+    if (tipoProblema === 'categorias_incorretas') {
+        const categoriaSelecionadas = formData.getAll('categorias[]');
+        if (categoriaSelecionadas.length === 0) {
+            mostrarMensagem('Por favor seleciona pelo menos uma categoria.', 'erro');
+            return;
+        }
+    }
+    
+    try {
+        const response = await fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.sucesso) {
+            mostrarMensagem('✅ ' + data.mensagem, 'sucesso');
+            relatorioForm.reset();
+            categoriasSection.classList.remove('show');
+            
+            // Redirecionar para o mapa após 2 segundos
+            setTimeout(() => {
+                window.location.href = '/mapa';
+            }, 2000);
+        } else {
+            mostrarMensagem('❌ ' + (data.erro || 'Erro ao enviar relatório'), 'erro');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        mostrarMensagem('❌ Erro na comunicação com o servidor', 'erro');
+    }
+});
+
+function mostrarMensagem(texto, tipo) {
+    mensagem.textContent = texto;
+    mensagem.className = 'mensagem ' + tipo;
+    mensagem.classList.remove('hidden');
+}
+</script>
+{% endblock %}

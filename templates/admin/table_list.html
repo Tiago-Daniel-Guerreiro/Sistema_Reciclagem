@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - {{ table_name | title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/css/admin.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h1>
+                        {{ table_name | title | replace('_', ' ') }}
+                    </h1>
+                </div>
+                <div class="btn-group" role="group">
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">← Voltar</a>
+                    <a href="{{ url_for('admin.add_record', table_name=table_name) }}" class="btn btn-primary">+ Adicionar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'success' }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if rows %}
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+            <thead class="table-light">
+                <tr>
+                    {% for col in columns %}
+                        <th>{{ col | title }}</th>
+                    {% endfor %}
+                    <th style="width: 200px;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    {% for col in columns %}
+                        <td>
+                            {% if row[col] is none %}
+                                <span class="text-muted">—</span>
+                            {% elif col in ['data_criacao', 'data_registo'] %}
+                                {{ row[col][:10] if row[col] else '—' }}
+                            {% elif col == 'password_hash' %}
+                                <code>••••••••</code>
+                            {% elif col in ['latitude', 'longitude'] %}
+                                {{ "%.4f"|format(row[col]) if row[col] else '—' }}
+                            {% else %}
+                                {{ row[col][:50] if (row[col] | string | length) > 50 else row[col] }}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="{{ url_for('admin.view_record', table_name=table_name, record_id=row['id']) }}" 
+                               class="btn btn-info" title="Ver">Ver</a>
+                            <a href="{{ url_for('admin.edit_record', table_name=table_name, record_id=row['id']) }}" 
+                               class="btn btn-warning" title="Editar">Editar</a>
+                            <form method="POST" action="{{ url_for('admin.delete_record', table_name=table_name, record_id=row['id']) }}" 
+                                  style="display:inline;" onsubmit="return confirm('Tem certeza que quer deletar este registro?');">
+                                <button type="submit" class="btn btn-danger" title="Deletar">Deletar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <p>Nenhum registro encontrado. <a href="{{ url_for('admin.add_record', table_name=table_name) }}">Criar novo</a></p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

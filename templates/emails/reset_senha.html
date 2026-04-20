@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; border-radius: 10px; }
+        .header { text-align: center; color: #0f5132; margin-bottom: 20px; }
+        .content { background: white; padding: 20px; border-radius: 8px; }
+        .code { background: #2ecc71; color: white; font-size: 24px; font-weight: bold; text-align: center; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; color: #999; font-size: 12px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Reset de Senha - ReciclaTech</h2>
+        </div>
+        
+        <div class="content">
+            <p>Olá <strong>{{ usuario }}</strong>,</p>
+            
+            <p>Recebemos um pedido para resetar a tua senha na <strong>ReciclaTech</strong>.</p>
+            
+            <p>Usa este código para criar uma nova senha:</p>
+            
+            <div class="code">{{ codigo_reset }}</div>
+            
+            <p style="color: #ff6b6b; font-weight: bold;">Este código expira em 24 horas.</p>
+            
+            <p>Se não foste tu a pedir o reset, ignora este email e a tua conta continuará protegida.</p>
+            
+            <p>Cumprimentos,<br><strong>Equipa ReciclaTech</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2026 ReciclaTech. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -27,9 +27,14 @@
             <input type="email" id="email" name="email" value="{{ email_pendente or '' }}" placeholder="teu@email.com" required>
 
             <label for="codigo">Código de Verificação</label>
-            <input type="text" id="codigo" name="codigo" placeholder="Ex: 123456" maxlength="6" required>
+            <input type="text" id="codigo" name="codigo" placeholder="Ex: XXXXXX-XXXXXX" maxlength="13" required>
 
             <button type="submit">Verificar</button>
+            
+            <button type="button" id="resend-btn" class="resend-button">Reenviar Código</button>
+            
+            <div id="resend-message" class="resend-message" style="display:none;"></div>
+            
             <a href="/login" class="back-link">Ir para login</a>
         </form>
     </div>

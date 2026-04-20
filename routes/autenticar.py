@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template, redirect, url_for, flash, session, jsonify
-from database.sistema import registrar_usuario, verificar_login, confirmar_email_por_codigo, reenviar_codigo
+from database.sistema import registrar_usuario, verificar_login, confirmar_email_por_codigo, reenviar_codigo, solicitar_reset_senha, reset_senha_com_codigo
 import re
 
 autenticar_route = Blueprint('autenticar', __name__)
@@ -12,14 +12,13 @@ def _validar_codigo_format(codigo):
 def registo():
     if request.method == 'POST':
         nome = request.form.get('nome')
-        regiao = request.form.get('regiao')
         email = request.form.get('email')
         senha = request.form.get('senha')
         confirmar_senha = request.form.get('confirmarSenha')
         receber = request.form.get('receiveemails')
         receber_notificacoes = bool(receber)
 
-        if not nome or not regiao or not email or not senha:
+        if not nome or not email or not senha:
             flash("Preencha todos os campos obrigatórios.", "warning")
             return render_template("registo.html")
 
@@ -27,10 +26,22 @@ def registo():
             flash("As senhas não coincidem.", "warning")
             return render_template("registo.html")
 
-        resultado = registrar_usuario(nome, email, senha, regiao, receber_notificacoes)
+        resultado = registrar_usuario(nome, email, senha, receber_notificacoes)
 
         if resultado.get("sucesso"):
+            # Login automático após registo bem-sucedido
+            user = {
+                'id': resultado.get('user_id'),
+                'nome': nome,
+                'tipo': 0,
+            }
+            
+            session['user_id'] = user['id']
+            session['nome'] = user['nome']
+            session['usuario_tipo'] = user['tipo']
+            session['user_email'] = email
             session["email_pendente_verificacao"] = email
+            
             flash("Conta criada com sucesso! Verifica o teu email com o código enviado.", "success")
             return redirect(url_for('autenticar.verificar_email'))
 
@@ -69,6 +80,7 @@ def login():
             session['user_id'] = user['id']
             session['nome'] = user['nome']
             session['usuario_tipo'] = user['tipo']
+            session['user_email'] = email 
 
             flash(f"Bem-vindo {user['nome']}!", "success")
             return redirect(url_for('home.home'))
@@ -82,7 +94,7 @@ def login():
 @autenticar_route.route('/logout')
 def logout():
     session.clear()
-    flash("Sessão encerrada.", "info")
+    flash("Desconectado com sucesso.", "success")
     return redirect(url_for('home.home'))
 
 
@@ -122,7 +134,70 @@ def confirmar_email_legacy(token):
     return redirect(url_for("autenticar.login"))
 
 
-@autenticar_route.route('/api/reenviar-codigo', methods=['POST'])
+@autenticar_route.route('/esqueci-senha', methods=['GET', 'POST'])
+def esqueci_senha():
+    if request.method == 'POST':
+        email = (request.form.get('email') or "").strip()
+        
+        if not email:
+            flash("Por favor, introduza o email.", "warning")
+            return render_template("esqueci_senha.html")
+        
+        resultado = solicitar_reset_senha(email)
+        
+        if resultado.get("sucesso"):
+            flash("Se o email estiver registado e verificado, receberás um código de reset.", "info")
+            return redirect(url_for("autenticar.login"))
+        
+        if resultado.get("erro") == "email_nao_verificado":
+            flash("Este email ainda não foi verificado. Verifica o teu email primeiro.", "warning")
+            return render_template("esqueci_senha.html")
+        
+        # Mostrar mensagem genérica por segurança
+        flash("Se o email estiver registado e verificado, receberás um código de reset.", "info")
+        return redirect(url_for("autenticar.login"))
+    
+    return render_template("esqueci_senha.html")
+
+
+@autenticar_route.route('/reset-senha', methods=['GET', 'POST'])
+def reset_senha():
+    if request.method == 'POST':
+        email = (request.form.get('email') or "").strip()
+        codigo = (request.form.get('codigo') or "").strip().upper()
+        nova_senha = request.form.get('nova_senha') or ""
+        confirmar_nova_senha = request.form.get('confirmar_nova_senha') or ""
+        
+        if not email or not codigo or not nova_senha or not confirmar_nova_senha:
+            flash("Preencha todos os campos.", "warning")
+            return render_template("reset_senha.html")
+        
+        if nova_senha != confirmar_nova_senha:
+            flash("As senhas não coincidem.", "warning")
+            return render_template("reset_senha.html")
+        
+        if not _validar_codigo_format(codigo):
+            flash("Formato inválido. Código deve ser: ABC123-DEF456", "warning")
+            return render_template("reset_senha.html")
+        
+        resultado = reset_senha_com_codigo(email, codigo, nova_senha)
+        
+        if resultado.get("sucesso"):
+            flash("Senha alterada com sucesso! Já podes fazer login.", "success")
+            return redirect(url_for("autenticar.login"))
+        
+        if resultado.get("erro") == "codigo_invalido":
+            flash("Código inválido.", "danger")
+        elif resultado.get("erro") == "codigo_expirado":
+            flash("Código expirou. Solicita um novo.", "danger")
+        else:
+            flash("Erro ao resetar senha.", "danger")
+        
+        return render_template("reset_senha.html")
+    
+    return render_template("reset_senha.html")
+
+@autenticar_route.route('/reenviar-codigo', methods=['POST'])
 def reenviar_codigo_route():
     email = (request.form.get('email') or request.json.get('email') or "").strip()
     

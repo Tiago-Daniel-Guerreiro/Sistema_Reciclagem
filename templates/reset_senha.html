@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Reset de Senha - ReciclaTech{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/css/verificar-email.css">
+{% endblock %}
+
+{% block content %}
+<main class="email-verification-page">
+    <div class="form-container">
+        <form class="verification-form" action="/reset-senha" method="post">
+            <h2>Reset de Senha</h2>
+            <p class="instruction-text">Introduz o código que recebeste por email e a tua nova senha.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="messages">
+                {% for category, message in messages %}
+                <p class="message-item">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="teu@email.com" required>
+
+            <label for="codigo">Código de Reset</label>
+            <input type="text" id="codigo" name="codigo" placeholder="Ex: XXXXXX-XXXXXX" maxlength="13" required>
+
+            <label for="nova_senha">Nova Senha</label>
+            <input type="password" id="nova_senha" name="nova_senha" placeholder="Nova senha" required>
+
+            <label for="confirmar_nova_senha">Confirmar Senha</label>
+            <input type="password" id="confirmar_nova_senha" name="confirmar_nova_senha" placeholder="Confirmar nova senha" required>
+
+            <button type="submit">Resetar Senha</button>
+            <a href="/login" class="back-link">Voltar para login</a>
+        </form>
+    </div>
+</main>
+{% endblock %}

@@ -957,6 +957,42 @@
         color: #007bff;
     }
 
+    .modal-footer button.modal-show-btn {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    .modal-footer button.modal-show-btn:hover {
+        background: #0056b3;
+        border-color: #0056b3;
+        color: white;
+    }
+
+    .modal-footer button.modal-report-btn {
+        background: #ff9800;
+        color: white;
+        border-color: #ff9800;
+    }
+
+    .modal-footer button.modal-report-btn:hover {
+        background: #e68900;
+        border-color: #e68900;
+        color: white;
+    }
+
+    .modal-footer button.modal-close-btn {
+        background: #dc3545;
+        color: white;
+        border-color: #dc3545;
+    }
+
+    .modal-footer button.modal-close-btn:hover {
+        background: #c82333;
+        border-color: #c82333;
+        color: white;
+    }
+
     .det-container {
         display: flex;
         flex-direction: column;

@@ -2,6 +2,7 @@ from __future__ import annotations
 import os
 import json
 import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from api.overpass.client import OverpassClient
@@ -163,19 +164,31 @@ class WeeklySyncService:
 		results = []
 		errors = []
 
-		for source in due_sources:
-			try:
-				results.append(self._run_source_sync(source))
-			except Exception as exc:
-				err_text = str(exc).strip() or f"{exc.__class__.__name__}"
-				self.db.set_sync_state(source, "error", err_text)
-				errors.append({"source": source, "error": err_text})
+		# Sincronizar em paralelo usando ThreadPoolExecutor
+		print(f"[Sync] Iniciando {len(due_sources)} sincronizações em paralelo: {due_sources}", flush=True)
+		print(f"[Sync] Iniciando {len(due_sources)} sincronizações em paralelo: {due_sources}", flush=True)
+		with ThreadPoolExecutor(max_workers=len(due_sources)) as executor:
+			# Submeter todas as sincronizações
+			future_to_source = {
+				executor.submit(self._run_source_sync, source): source 
+				for source in due_sources
+			}
+			
+			# Aguardar que todas as sincronizações acabem
+			for future in as_completed(future_to_source):
+				source = future_to_source[future]
+				try:
+					result = future.result()
+					results.append(result)
+				except Exception as exc:
+					err_text = str(exc).strip() or f"{exc.__class__.__name__}"
+					self.db.set_sync_state(source, "error", err_text)
+					errors.append({"source": source, "error": err_text})
+					print(f"[Sync] source={source} failed in parallel: {err_text}", flush=True)
 
-		merge_result = None
 		if not errors:
 			with self.db.connection() as conn:
-				merge_result = self.db.apply_point_merges(conn)
-			print(f"[Sync] merge pairs={merge_result.get('pairs')} removed={merge_result.get('removed')}", flush=True)
+				pass
 			
 			snapshot_result = self._export_daily_snapshot()
 
@@ -189,7 +202,6 @@ class WeeklySyncService:
 			"skipped": False,
 			"due_sources": due_sources,
 			"results": results,
-			"merge": merge_result,
 			"snapshot": snapshot_result if not errors else None,
 			"errors": errors,
 		}

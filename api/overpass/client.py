@@ -84,6 +84,8 @@ class OverpassClient(BaseClient):
 					continue
 				else:
 					raise
+		
+		return []
 
 	def fetch_elements(self, bbox: tuple[float, float, float, float] = PORTUGAL_BBOX) -> list[dict]:
 		urls = [self.base_url] + OVERPASS_FALLBACK_URLS

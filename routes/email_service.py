@@ -80,21 +80,7 @@ def enviar_email_verificacao(destinatario, nome, codigo_verificacao):
         "codigo_verificacao": codigo_verificacao
     }
 
-    try:
-        return enviar_email(destinatario, assunto, "verificacao_email.html", contexto=contexto)
-
-    except TemplateNotFound:
-        corpo_html = f"""
-        <div style="font-family: Arial;">
-            <h2>Olá {nome},</h2>
-            <p>Obrigado por te registares no <strong>ReciclaTech</strong>.</p>
-            <p>Usa este código para confirmar o teu email:</p>
-            <h1 style="color:#2ecc71;">{codigo_verificacao}</h1>
-            <p>Se não foste tu, ignora este email.</p>
-        </div>
-        """
-        return enviar_email(destinatario, assunto, corpo_html=corpo_html)
-
+    return enviar_email(destinatario, assunto, "verificacao_email.html", contexto=contexto)
 
 def enviar_contacto_para_equipa(nome, email, mensagem):
     if not EMAIL_REMETENTE or not SENHA_APP:
@@ -121,8 +107,7 @@ def enviar_novo_ponto(ponto):
         SELECT email, nome
         FROM utilizadores
         WHERE receber_notificacoes = 1
-        AND regiao = ?
-    """, (ponto['regiao'],))
+    """)
 
     usuarios = cursor.fetchall()
     conn.close()
@@ -144,7 +129,7 @@ def enviar_novo_ponto(ponto):
 
         enviar_email(
             email,
-            f"Novo ponto de reciclagem em {ponto['regiao'].capitalize()}",
+            f"Novo ponto de reciclagem",
             "novo_ponto.html",
             contexto
         )
@@ -212,3 +197,14 @@ def enviar_dica(dica):
             "dica.html",
             contexto
         )
+
+
+def enviar_email_reset_senha(destinatario, nome, codigo_reset):
+    assunto = "Reset de Senha - ReciclaTech"
+
+    contexto = {
+        "usuario": nome,
+        "codigo_reset": codigo_reset
+    }
+
+    return enviar_email(destinatario, assunto, "reset_senha.html", contexto=contexto)

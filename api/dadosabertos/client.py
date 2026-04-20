@@ -52,9 +52,9 @@ class DadosAbertosClient(BaseClient):
 	
 	def __init__(self, timeout_seconds: int = DEFAULT_TIMEOUT, data_dir: str | None = None):
 		if data_dir is None:
-			data_dir = Path(__file__).parent / "data"
+			data_dir = str(Path(__file__).parent / "data")
 		
-		super().__init__(data_dir=str(data_dir))
+		super().__init__(data_dir=data_dir)
 		self.timeout_seconds = timeout_seconds
 	
 	def _request_geojson(self, url: str) -> dict:

@@ -23,8 +23,14 @@ def normalize_and_validate_point(point: dict) -> dict | str:
         return ""
     
     try:
-        lat = float(point.get("lat"))
-        lng = float(point.get("lng"))
+        lat_val = point.get("lat")
+        lng_val = point.get("lng")
+        
+        if lat_val is None or lng_val is None:
+            return ""
+        
+        lat = float(lat_val)
+        lng = float(lng_val)
     except (TypeError, ValueError):
         return ""
     
@@ -69,7 +75,6 @@ def remove_points_without_categories_sql(conn, now: str) -> None:
         """
         UPDATE pontos
         SET is_removed = 1,
-            merged_into_id = NULL,
             updated_at = ?
         WHERE is_removed = 0
           AND id NOT IN (SELECT DISTINCT ponto_id FROM ponto_categorias)
@@ -87,7 +92,6 @@ def remove_points_outside_portugal_sql(conn, now: str) -> None:
         f"""
         UPDATE pontos
         SET is_removed = 1,
-            merged_into_id = NULL,
             updated_at = ?
         WHERE is_removed = 0
           AND NOT ({where_clause})

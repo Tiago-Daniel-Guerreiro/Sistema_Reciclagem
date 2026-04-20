@@ -16,6 +16,7 @@ const DetalhesModule = (function () {
 
         ModalManager.setBotoes('detalhes-modal', [
             { texto: 'Mostrar', acao: mostrar, className: 'modal-show-btn' },
+            { texto: 'Reportar Problema', acao: reportarProblema, className: 'modal-report-btn' },
             { texto: 'Fechar', acao: fechar, className: 'modal-close-btn' }
         ]);
 
@@ -47,6 +48,9 @@ const DetalhesModule = (function () {
         if (Utils.isValidCoord(essential.lat, essential.lng)) MapModule.getMap().setView([essential.lat, essential.lng], 14);
     }
 
+    function reportarProblema() {
+        window.open('/reportar/' + currentData.id, '_blank');
+    }
     function getDados() { return currentData; }
 
     return {

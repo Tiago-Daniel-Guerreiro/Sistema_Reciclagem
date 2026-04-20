@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - {{ "Editar" if record else "Adicionar" }} {{ table_name | title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/css/admin.css">
+<style>
+    .form-group {
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>
+                {{ "Editar" if record else "Adicionar" }}
+                {% if table_name == 'utilizadores' %}{% elif table_name == 'pontos_recolha' %}{% elif table_name == 'tipos_residuos' %}{% elif table_name == 'graficos' %}{% elif table_name == 'estatisticas' %}{% else %}{% endif %}
+                {{ table_name | title | replace('_', ' ') }}
+            </h1>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'success' }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" class="needs-validation">
+                <div class="row">
+                    {% for col in columns %}
+                        {% if col['name'] != 'id' and col['name'] not in ['data_criacao', 'data_registo'] %}
+                        <div class="col-md-{% if col['type'] == 'TEXT' and col['name'] not in ['email', 'nome', 'titulo'] %}12{% else %}6{% endif %} mb-3">
+                            <label for="{{ col['name'] }}" class="form-label">
+                                {{ col['name'] | title | replace('_', ' ') }}
+                                {% if col['notnull'] == 1 and col['name'] != 'id' %}
+                                    <span class="text-danger">*</span>
+                                {% endif %}
+                            </label>
+
+                            {% if col['type'] == 'TEXT' %}
+                                {% if col['name'] in ['descricao', 'instrucoes_descarte', 'conteudo', 'fonte', 'fonte_geral'] %}
+                                <textarea class="form-control" id="{{ col['name'] }}" name="{{ col['name'] }}" rows="4">{% if record %}{{ record[col['name']] or '' }}{% endif %}</textarea>
+                                {% elif col['name'] in ['email'] %}
+                                <input type="email" class="form-control" id="{{ col['name'] }}" name="{{ col['name'] }}" value="{% if record %}{{ record[col['name']] or '' }}{% endif %}" {% if col['notnull'] == 1 %}required{% endif %}>
+                                {% else %}
+                                <input type="text" class="form-control" id="{{ col['name'] }}" name="{{ col['name'] }}" value="{% if record %}{{ record[col['name']] or '' }}{% endif %}" {% if col['notnull'] == 1 %}required{% endif %}>
+                                {% endif %}
+                            {% elif col['type'] == 'INTEGER' %}
+                                {% if col['name'] in ['tipo', 'receber_notificacoes', 'email_verificado', 'eletronico'] %}
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="{{ col['name'] }}" name="{{ col['name'] }}" value="1" {% if record and record[col['name']] == 1 %}checked{% endif %}>
+                                    <label class="form-check-label" for="{{ col['name'] }}">
+                                        {% if col['name'] == 'tipo' %}Admin{% elif col['name'] == 'receber_notificacoes' %}Receber Notificações{% elif col['name'] == 'email_verificado' %}Email Verificado{% elif col['name'] == 'eletronico' %}Eletrônico{% endif %}
+                                    </label>
+                                </div>
+                                {% else %}
+                                <input type="number" class="form-control" id="{{ col['name'] }}" name="{{ col['name'] }}" value="{% if record %}{{ record[col['name']] or '' }}{% endif %}" {% if col['notnull'] == 1 %}required{% endif %}>
+                                {% endif %}
+                            {% elif col['type'] == 'REAL' %}
+                            <input type="number" step="0.0001" class="form-control" id="{{ col['name'] }}" name="{{ col['name'] }}" value="{% if record %}{{ record[col['name']] or '' }}{% endif %}" {% if col['notnull'] == 1 %}required{% endif %}>
+                            {% else %}
+                            <input type="text" class="form-control" id="{{ col['name'] }}" name="{{ col['name'] }}" value="{% if record %}{{ record[col['name']] or '' }}{% endif %}" {% if col['notnull'] == 1 %}required{% endif %}>
+                            {% endif %}
+
+                            <small class="form-text text-muted">
+                                {% if col['type'] == 'TEXT' %}Texto{% elif col['type'] == 'INTEGER' %}Número inteiro{% elif col['type'] == 'REAL' %}Número decimal{% else %}{{ col['type'] }}{% endif %}
+                            </small>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{{ url_for('admin.list_table', table_name=table_name) }}" class="btn btn-secondary">← Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            {% if record %}Atualizar{% else %}Adicionar{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

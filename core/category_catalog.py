@@ -12,6 +12,8 @@ def _slugify(value: str | None) -> str:
     if not value:
         return ""
 
+    # Garantir que value é string
+    value = str(value)
     text = value.strip().lower()
     text = (
         text.replace("á", "a")

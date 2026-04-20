@@ -3,7 +3,6 @@ import os
 import sqlite3
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from seguranca import encrypt_password
 
 def limpar_e_reiniciar_banco():
     caminho_banco = os.path.join(os.path.dirname(__file__), "..", "banco.db")
@@ -30,8 +29,7 @@ def limpar_e_reiniciar_banco():
     nome TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    tipo TEXT NOT NULL CHECK (tipo IN ('admin','utilizador')),
-    regiao TEXT NOT NULL,
+    tipo INTEGER NOT NULL DEFAULT 0 CHECK (tipo IN (0,1)),
     receber_notificacoes INTEGER NOT NULL DEFAULT 1 CHECK (receber_notificacoes IN (0,1)),
     email_verificado INTEGER NOT NULL DEFAULT 0,
     codigo_verificacao TEXT,
@@ -110,12 +108,6 @@ def limpar_e_reiniciar_banco():
         FOREIGN KEY (estatistica_id) REFERENCES estatisticas(id) ON DELETE CASCADE
     )
     """)
-
-    senha_admin = encrypt_password("123")
-    cursor.execute("""
-    INSERT INTO utilizadores (nome, email, password_hash, tipo, regiao, receber_notificacoes)
-    VALUES (?, ?, ?, ?, ?, ?)
-    """, ("Administrador ReciclaTech Lisboa", "admin.ReciclaTech@gmail.com", senha_admin, "admin", "centro", 1))
 
     conexao.commit()
     conexao.close()

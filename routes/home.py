@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from routes.email_service import enviar_contacto_para_equipa
 
 home_route = Blueprint('home', __name__)
@@ -9,6 +10,10 @@ def home():
 
 @home_route.route("/mapa", strict_slashes=False, methods=["GET"])
 def mapa_page():
+    # Proteger com login
+    if 'user_id' not in session:
+        flash("É necessário estar autenticado para aceder ao mapa.", "warning")
+        return redirect(url_for('autenticar.login'))
     return render_template("mapa.html")
 
 @home_route.route("/informacoes", strict_slashes=False)
