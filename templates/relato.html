@@ -278,7 +278,7 @@ relatorioForm.addEventListener('submit', async (e) => {
         const data = await response.json();
         
         if (data.sucesso) {
-            mostrarMensagem('✅ ' + data.mensagem, 'sucesso');
+            mostrarMensagem(data.mensagem, 'sucesso');
             relatorioForm.reset();
             categoriasSection.classList.remove('show');
             
@@ -287,11 +287,11 @@ relatorioForm.addEventListener('submit', async (e) => {
                 window.location.href = '/mapa';
             }, 2000);
         } else {
-            mostrarMensagem('❌ ' + (data.erro || 'Erro ao enviar relatório'), 'erro');
+            mostrarMensagem((data.erro || 'Erro ao enviar relatório'), 'erro');
         }
     } catch (error) {
         console.error('Erro:', error);
-        mostrarMensagem('❌ Erro na comunicação com o servidor', 'erro');
+        mostrarMensagem('Erro na comunicação com o servidor', 'erro');
     }
 });
 

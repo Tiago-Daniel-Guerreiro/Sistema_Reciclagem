@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Reports do Ponto{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/css/admin.css">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1>Reports do Ponto: {{ ponto['nome'] }}</h1>
+                    <p class="text-muted">ID: #{{ ponto['id'] }} | Lat: {{ "%.4f"|format(ponto['lat']) }} | Lng: {{ "%.4f"|format(ponto['lng']) }}</p>
+                </div>
+                <div>
+                    <span class="badge bg-danger" style="font-size: 1.2rem;">{{ reports | length }} Reports</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if reports %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for report in reports %}
+            <div class="card bg-dark border-secondary mb-3">
+                <div class="card-header bg-dark border-secondary">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <strong class="text-light">{{ report['nome'] }}</strong><br>
+                            <small class="text-muted">{{ report['email'] }}</small>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-light"><strong>Motivo:</strong> {{ report['tipo_problema'] }}</small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <small class="text-muted">{{ report['criado_em'] }}</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body bg-light">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h5>Informações do Report</h5>
+                            <p>
+                                <strong>ID Report:</strong> #{{ report['id'] }}<br>
+                                <strong>Pessoa:</strong> {{ report['nome'] }}<br>
+                                <strong>Email:</strong> {{ report['email'] }}<br>
+                                <strong>Tipo de Problema:</strong> <span class="badge bg-warning">{{ report['tipo_problema'] }}</span><br>
+                                <strong>Data:</strong> {{ report['criado_em'] }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Categorias Afetadas</h5>
+                            {% if report['categorias_json'] %}
+                                {% set categorias = report['categorias_json'] | replace("'", '"') %}
+                                <p>{{ report['categorias_json'] }}</p>
+                            {% else %}
+                                <p class="text-muted">Nenhuma categoria especificada</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>Comentário</h5>
+                            <div class="bg-dark p-3 rounded" style="border-left: 3px solid #20c997;">
+                                <p class="mb-0 text-light">{{ report['comentario'] or 'Sem comentário' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <p>Nenhum report encontrado para este ponto.</p>
+    </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
+    </div>
+</div>
+{% endblock %}

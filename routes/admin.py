@@ -54,8 +54,24 @@ def dashboard():
         cursor.execute(f"SELECT COUNT(*) as total FROM {table}")
         stats[table] = cursor.fetchone()['total']
     
+    # Contar reports
+    cursor.execute("SELECT COUNT(*) as total FROM ponto_reports")
+    stats['reports'] = cursor.fetchone()['total']
+    
+    # Buscar pontos com reports
+    cursor.execute("""
+        SELECT p.id, p.nome, COUNT(pr.id) as total_reports
+        FROM pontos p
+        LEFT JOIN ponto_reports pr ON p.id = pr.ponto_id
+        WHERE pr.id IS NOT NULL
+        GROUP BY p.id
+        ORDER BY total_reports DESC
+        LIMIT 10
+    """)
+    pontos_reportados = cursor.fetchall()
+    
     conn.close()
-    return render_template('admin/dashboard.html', stats=stats)
+    return render_template('admin/dashboard.html', stats=stats, pontos_reportados=pontos_reportados)
 
 
 @admin_route.route('/table/<table_name>', methods=['GET'])
@@ -306,3 +322,33 @@ def view_record(table_name, record_id):
                          table_name=table_name, 
                          record=dict(record),
                          relationships=relationships)
+
+
+@admin_route.route('/ponto/<int:ponto_id>/reports', methods=['GET'])
+@require_admin
+def view_ponto_reports(ponto_id):
+    conn = conectar_db()
+    cursor = conn.cursor()
+    
+    # Buscar informações do ponto
+    cursor.execute("SELECT * FROM pontos WHERE id = ?", (ponto_id,))
+    ponto = cursor.fetchone()
+    
+    if not ponto:
+        flash("Ponto não encontrado.", "danger")
+        return redirect(url_for('admin.view_reports'))
+    
+    # Buscar todos os reports deste ponto
+    cursor.execute("""
+        SELECT pr.*, u.nome, u.email
+        FROM ponto_reports pr
+        JOIN utilizadores u ON pr.utilizador_id = u.id
+        WHERE pr.ponto_id = ?
+        ORDER BY pr.criado_em DESC
+    """, (ponto_id,))
+    reports = cursor.fetchall()
+    
+    conn.close()
+    return render_template('admin/ponto_reports_details.html', 
+                         ponto=dict(ponto), 
+                         reports=reports)

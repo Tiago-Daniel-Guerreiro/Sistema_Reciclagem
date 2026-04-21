@@ -68,5 +68,64 @@
             </div>
         </div>
     </div>
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h2 class="mb-4">Relatórios Recentes</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-0">Pontos Reportados</h5>
+                            <p class="text-muted mb-0">Total de reports enviados por utilizadores</p>
+                        </div>
+                        <div class="text-end">
+                            <h2 class="mb-0">{{ stats.reports }}</h2>
+                            <small class="text-muted">relatórios</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Pontos com Reports -->
+    {% if pontos_reportados %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ponto ID</th>
+                            <th>Nome</th>
+                            <th class="text-center">Quantidade de Reports</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ponto in pontos_reportados %}
+                        <tr>
+                            <td>#{{ ponto['id'] }}</td>
+                            <td>{{ ponto['nome'] }}</td>
+                            <td class="text-center">
+                                <span class="badge bg-warning">{{ ponto['total_reports'] }}</span>
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ url_for('admin.view_ponto_reports', ponto_id=ponto['id']) }}" 
+                                   class="btn btn-info btn-sm">Ver Detalhes</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
