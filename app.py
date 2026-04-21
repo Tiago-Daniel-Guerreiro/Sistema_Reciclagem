@@ -55,7 +55,6 @@ def create_app(fast_mode: bool = False) -> Flask:
 
     data_folder = static_folder / "data"
     data_folder.mkdir(parents=True, exist_ok=True)
-
     # Inicializa dados
     _init_data(db, sync_service, db_file_exists, data_folder, fast_mode)
     
@@ -151,6 +150,14 @@ def _register_routes(app, static_folder):
     def serve_css(filename):
         return send_from_directory(PROJECT_ROOT / "templates" / "css", filename)
     
+    @app.get("/imagens/<path:filename>")
+    def serve_imagens(filename):
+        return send_from_directory(PROJECT_ROOT / "templates" / "imagens", filename)
+    
+    @app.get("/404")
+    def page_404():
+        return render_template("404.html"), 404
+    
     @app.get("/map/")
     def serve_map_index():
         return send_from_directory(static_folder, "index.html")
@@ -158,6 +165,10 @@ def _register_routes(app, static_folder):
     @app.get("/map/<path:filename>")
     def serve_map_assets(filename):
         return send_from_directory(static_folder, filename)
+    
+    @app.errorhandler(404)
+    def page_not_found(error):
+        return redirect("/404")
 
 # Detectar modo fast e criar app apenas se main
 if __name__ == "__main__":
