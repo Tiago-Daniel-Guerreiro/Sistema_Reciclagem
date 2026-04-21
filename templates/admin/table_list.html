@@ -66,11 +66,11 @@
                     {% endfor %}
                     <td>
                         <div class="btn-group btn-group-sm" role="group">
-                            <a href="{{ url_for('admin.view_record', table_name=table_name, record_id=row['id']) }}" 
+                            <a href="{{ url_for('admin.view_record', table_name=table_name, record_id=row[pk_column]) }}" 
                                class="btn btn-info" title="Ver">Ver</a>
-                            <a href="{{ url_for('admin.edit_record', table_name=table_name, record_id=row['id']) }}" 
+                            <a href="{{ url_for('admin.edit_record', table_name=table_name, record_id=row[pk_column]) }}" 
                                class="btn btn-warning" title="Editar">Editar</a>
-                            <form method="POST" action="{{ url_for('admin.delete_record', table_name=table_name, record_id=row['id']) }}" 
+                            <form method="POST" action="{{ url_for('admin.delete_record', table_name=table_name, record_id=row[pk_column]) }}" 
                                   style="display:inline;" onsubmit="return confirm('Tem certeza que quer deletar este registro?');">
                                 <button type="submit" class="btn btn-danger" title="Deletar">Deletar</button>
                             </form>

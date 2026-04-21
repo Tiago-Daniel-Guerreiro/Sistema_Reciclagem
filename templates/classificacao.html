@@ -4,38 +4,70 @@
 
 {% block content %}
 
-<main class="hero">
-
+<main class="classificacao">
     <h1>Classificação dos Resíduos Eletrónicos</h1>
 
-    <p>
-        Conheça os diferentes tipos de lixo eletrónico e como descartá-los corretamente.
+    <p class="classificacao-intro">
+        Conheça os principais tipos de lixo eletrónico e aprenda como descartá-los corretamente.
     </p>
 
-    <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 20px;">
+    <div class="grid-classificacao">
 
-        <div style="background-color: #2c2c2c; padding: 20px; border-radius: 10px;">
-            <h3>Pequenos Eletrodomésticos</h3>
-            <p>Ex: torradeiras, secadores, ferros de passar.</p>
+        <div class="card-class">
+            <h2>Pequenos Eletrodomésticos</h2>
+            <p>Aparelhos de uso doméstico de menor dimensão.</p>
+            <ul class="lista">
+                <li>Torradeiras</li>
+                <li>Secadores de cabelo</li>
+                <li>Ferros de engomar</li>
+                <li>Aspiradores pequenos</li>
+            </ul>
         </div>
 
-        <div style="background-color: #2c2c2c; padding: 20px; border-radius: 10px;">
-            <h3>Grandes Eletrodomésticos</h3>
-            <p>Ex: frigoríficos, máquinas de lavar.</p>
+        <div class="card-class">
+            <h2>Grandes Equipamentos</h2>
+            <p>Equipamentos domésticos de maior dimensão.</p>
+            <ul class="lista">
+                <li>Frigoríficos</li>
+                <li>Máquinas de lavar</li>
+                <li>Fogões</li>
+                <li>Ar condicionado</li>
+            </ul>
         </div>
 
-        <div style="background-color: #2c2c2c; padding: 20px; border-radius: 10px;">
-            <h3>Equipamentos Informáticos</h3>
-            <p>Ex: computadores, teclados, monitores.</p>
+        <div class="card-class">
+            <h2>Equipamentos Informáticos</h2>
+            <p>Dispositivos eletrónicos de uso tecnológico.</p>
+            <ul class="lista">
+                <li>Computadores</li>
+                <li>Teclados</li>
+                <li>Monitores</li>
+                <li>Impressoras</li>
+            </ul>
         </div>
 
-        <div style="background-color: #2c2c2c; padding: 20px; border-radius: 10px;">
-            <h3>Pilhas e Baterias</h3>
-            <p>Devem ser descartadas em pontos específicos para evitar poluição.</p>
+        <div class="card-class">
+            <h2>Pilhas e Baterias</h2>
+            <p>Fontes de energia portáteis.</p>
+            <ul class="lista">
+                <li>Pilhas AA/AAA</li>
+                <li>Baterias de telemóvel</li>
+                <li>Powerbanks</li>
+                <li>Baterias de portátil</li>
+            </ul>
         </div>
 
+        <div class="card-class">
+            <h2>Equipamentos de Telecomunicação</h2>
+            <p>Dispositivos de comunicação pessoal e profissional.</p>
+            <ul class="lista">
+                <li>Telemóveis</li>
+                <li>Tablets</li>
+                <li>Webcams</li>
+                <li>Headphones eletrónicos</li>
+            </ul>
+        </div>
     </div>
-
 </main>
 
 {% endblock %}

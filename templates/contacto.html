@@ -4,41 +4,66 @@
 
 {% block content %}
 
-<main style="padding: 60px 20px; max-width: 600px; margin: auto;">
-
+<main class="contacto">
     <h1>Contacto</h1>
 
-    <p style="margin-top: 15px;">
-        Tem dúvidas ou sugestões? Envie-nos uma mensagem.
+    <p class="contacto-intro">
+        Tem dúvidas, sugestões ou pretende saber mais? Entre em contacto connosco.
+        Responderemos o mais brevemente possível.
     </p>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-    <div style="margin-top: 18px;">
+    <div style="margin-top: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
         {% for category, message in messages %}
-        <p style="padding: 8px; border-radius: 6px; background:#2c2c2c; color:white;">{{ message }}</p>
+        <div style="padding: 15px; border-radius: 8px; background:#20c997; color:black; font-weight: bold;">
+            ✓ {{ message }}
+        </div>
         {% endfor %}
     </div>
     {% endif %}
     {% endwith %}
 
-    <form action="/contacto" method="post" style="margin-top: 30px; display: flex; flex-direction: column; gap: 15px;">
+    <form action="/contacto" method="post" class="contacto-form" style="margin-top: 40px;">
 
-        <label>Nome</label>
-        <input type="text" name="nome" placeholder="Seu nome" required>
+        <label for="nome">Nome completo</label>
+        <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
 
-        <label>Email</label>
-        <input type="email" name="email" placeholder="Seu email" required>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="seu.email@exemplo.com" required>
 
-        <label>Mensagem</label>
-        <textarea rows="5" name="mensagem" placeholder="Escreva sua mensagem..." required></textarea>
+        <label for="assunto" style="margin-top: 15px;">Assunto</label>
+        <input type="text" id="assunto" name="assunto" placeholder="Tema da mensagem" required>
 
-        <button type="submit" style="padding: 12px; background-color: #20c997; border: none; font-weight: bold; cursor: pointer;">
+        <label for="mensagem" style="margin-top: 15px;">Mensagem</label>
+        <textarea id="mensagem" name="mensagem" rows="6" placeholder="Escreva sua mensagem aqui..." required></textarea>
+
+        <button type="submit" class="btn" style="margin-top: 25px; width: 100%; padding: 14px;">
             Enviar
         </button>
 
     </form>
 
+    <section style="margin-top: 60px; padding-top: 40px; border-top: 2px solid rgba(255,255,255,0.1);">
+        <h2 style="color: #20c997; margin-bottom: 30px;">Outras Formas de Contacto</h2>
+        
+        <div class="info-cards">
+            <div class="info-card">
+                <h3>Email</h3>
+                <p><a href="mailto:info@reciclatech.pt" style="color: #20c997;">info@reciclatech.pt</a></p>
+            </div>
+
+            <div class="info-card">
+                <h3>Telefone</h3>
+                <p><a href="tel:+351000000000" style="color: #20c997;">+351 xxx xxx xxx</a></p>
+            </div>
+
+            <div class="info-card">
+                <h3>Morada</h3>
+                <p>... Lisboa, Portugal</p>
+            </div>
+        </div>
+    </section>
 </main>
 
 {% endblock %}

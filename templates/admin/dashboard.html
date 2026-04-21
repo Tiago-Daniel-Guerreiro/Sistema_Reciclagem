@@ -68,42 +68,5 @@
             </div>
         </div>
     </div>
-
-    <!-- Menu de Tabelas -->
-    <div class="row mt-5">
-        <div class="col-md-12">
-            <h3>Todas as Tabelas</h3>
-            <div class="list-group">
-                <a href="{{ url_for('admin.list_table', table_name='utilizadores') }}" class="list-group-item list-group-item-action">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1 text-dark">Utilizadores</h5>
-                        <span class="badge bg-dark">{{ stats.utilizadores }}</span>
-                    </div>
-                    <p class="mb-1 text-muted">Gerenciar contas de utilizadores e permissões</p>
-                </a>
-                <a href="{{ url_for('admin.list_table', table_name='pontos') }}" class="list-group-item list-group-item-action">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1 text-dark">Pontos</h5>
-                        <span class="badge bg-primary">{{ stats.pontos }}</span>
-                    </div>
-                    <p class="mb-1 text-muted">Gerenciar locais de reciclagem</p>
-                </a>
-                <a href="{{ url_for('admin.list_table', table_name='categorias') }}" class="list-group-item list-group-item-action">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1 text-dark">Categorias</h5>
-                        <span class="badge bg-success">{{ stats.categorias }}</span>
-                    </div>
-                    <p class="mb-1 text-muted">Gerenciar categorias de recolha</p>
-                </a>
-                <a href="{{ url_for('admin.list_table', table_name='ponto_categorias') }}" class="list-group-item list-group-item-action">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1 text-dark">Relações Ponto-Categoria</h5>
-                        <span class="badge bg-info">{{ stats.ponto_categorias }}</span>
-                    </div>
-                    <p class="mb-1 text-muted">Gerenciar associações entre pontos e categorias</p>
-                </a>
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}

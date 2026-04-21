@@ -75,11 +75,22 @@ def list_table(table_name):
     columns = cursor.fetchall()
     column_names = [col['name'] for col in columns]
     
-    # Buscar dados (soft delete filter para pontos)
+    # Encontrar chave primária
+    cursor.execute(f"PRAGMA table_info({table_name})")
+    pk_column = None
+    for col in cursor.fetchall():
+        if col['pk'] != 0:  # pk=1 significa PRIMARY KEY
+            if pk_column is None or col['pk'] < pk_column[1]:
+                pk_column = (col['name'], col['pk'])
+    
+    # Buscar dados
     if table_name == 'pontos':
         cursor.execute(f"SELECT * FROM {table_name} WHERE is_removed = 0 ORDER BY id DESC LIMIT 100")
+    elif pk_column:
+        cursor.execute(f"SELECT * FROM {table_name} ORDER BY {pk_column[0]} DESC LIMIT 100")
     else:
-        cursor.execute(f"SELECT * FROM {table_name} ORDER BY id DESC LIMIT 100")
+        cursor.execute(f"SELECT * FROM {table_name} LIMIT 100")
+    
     rows = cursor.fetchall()
     
     conn.close()
@@ -87,7 +98,8 @@ def list_table(table_name):
     return render_template('admin/table_list.html', 
                          table_name=table_name, 
                          columns=column_names, 
-                         rows=rows)
+                         rows=rows,
+                         pk_column=pk_column[0] if pk_column else 'id')
 
 
 @admin_route.route('/table/<table_name>/add', methods=['GET', 'POST'])
@@ -156,7 +168,7 @@ def add_record(table_name):
 @admin_route.route('/table/<table_name>/edit/<int:record_id>', methods=['GET', 'POST'])
 @require_admin
 def edit_record(table_name, record_id):
-    valid_tables = ['utilizadores', 'pontos', 'categorias', 'ponto_categorias']
+    valid_tables = ['utilizadores', 'pontos', 'categorias']
     
     if table_name not in valid_tables:
         flash("Tabela inválida.", "danger")
@@ -221,7 +233,7 @@ def edit_record(table_name, record_id):
 @admin_route.route('/table/<table_name>/delete/<int:record_id>', methods=['POST'])
 @require_admin
 def delete_record(table_name, record_id):
-    valid_tables = ['utilizadores', 'pontos', 'categorias', 'ponto_categorias']
+    valid_tables = ['utilizadores', 'pontos', 'categorias']
     
     if table_name not in valid_tables:
         flash("Tabela inválida.", "danger")
@@ -233,8 +245,19 @@ def delete_record(table_name, record_id):
         
         # Soft delete para pontos (marcar como is_removed = 1)
         if table_name == 'pontos':
-            cursor.execute(f"UPDATE {table_name} SET is_removed = 1 WHERE id = ?", (record_id,))
-            flash(f"Ponto marcado como deletado (soft delete)!", "success")
+            # Verificar se já foi soft deleted
+            cursor.execute("SELECT is_removed FROM pontos WHERE id = ?", (record_id,))
+            result = cursor.fetchone()
+            
+            if result and result['is_removed'] == 1:
+                # Já foi soft deleted - fazer hard delete completo
+                cursor.execute("DELETE FROM ponto_categorias WHERE ponto_id = ?", (record_id,))
+                cursor.execute(f"DELETE FROM {table_name} WHERE id = ?", (record_id,))
+                flash(f"Ponto completamente deletado!", "success")
+            else:
+                # Primeiro soft delete
+                cursor.execute(f"UPDATE {table_name} SET is_removed = 1 WHERE id = ?", (record_id,))
+                flash(f"Ponto marcado como deletado (soft delete)!", "success")
         else:
             # Hard delete para outras tabelas
             cursor.execute(f"DELETE FROM {table_name} WHERE id = ?", (record_id,))
@@ -252,7 +275,7 @@ def delete_record(table_name, record_id):
 @admin_route.route('/table/<table_name>/details/<int:record_id>', methods=['GET'])
 @require_admin
 def view_record(table_name, record_id):
-    valid_tables = ['utilizadores', 'pontos', 'categorias', 'ponto_categorias']
+    valid_tables = ['utilizadores', 'pontos', 'categorias']
     
     if table_name not in valid_tables:
         flash("Tabela inválida.", "danger")
@@ -272,16 +295,6 @@ def view_record(table_name, record_id):
     
     # Buscar relacionamentos se existirem
     relationships = {}
-    
-    if table_name == 'graficos':
-        cursor.execute("SELECT * FROM estatisticas WHERE grafico_id = ?", (record_id,))
-        relationships['estatisticas'] = cursor.fetchall()
-    
-    if table_name == 'estatisticas':
-        cursor.execute("SELECT * FROM dados_grafico WHERE estatistica_id = ?", (record_id,))
-        relationships['dados_grafico'] = cursor.fetchall()
-        cursor.execute("SELECT * FROM graficos WHERE id = ?", (record['grafico_id'],))
-        relationships['grafico'] = cursor.fetchone()
     
     if table_name == 'pontos':
         cursor.execute("SELECT * FROM ponto_categorias WHERE ponto_id = ?", (record_id,))

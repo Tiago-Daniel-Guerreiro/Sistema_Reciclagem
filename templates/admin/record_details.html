@@ -14,7 +14,7 @@
                 <h1>{{ table_name | title | replace('_', ' ') }} #{{ record.id }}</h1>
                 <div class="btn-group" role="group">
                     <a href="{{ url_for('admin.list_table', table_name=table_name) }}" class="btn btn-secondary">← Voltar</a>
-                    <a href="{{ url_for('admin.edit_record', table_name=table_name, record_id=record.id) }}" class="btn btn-primary">✏️ Editar</a>
+                    <a href="{{ url_for('admin.edit_record', table_name=table_name, record_id=record.id) }}" class="btn btn-primary">Editar</a>
                 </div>
             </div>
         </div>

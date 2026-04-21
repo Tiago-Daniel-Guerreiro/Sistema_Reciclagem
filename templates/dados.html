@@ -4,45 +4,69 @@
 
 {% block content %}
 
-<main style="padding: 60px 20px; max-width: 900px; margin: auto;">
-
+<main class="dados">
     <h1>Dados & Estatísticas</h1>
 
-    <p style="margin-top: 15px;">
-        O lixo eletrónico é um dos fluxos de resíduos que mais cresce no mundo.
-        Em Portugal, a recolha ainda é insuficiente comparada com outros países da União Europeia.
+    <p class="dados-intro">
+        O lixo eletrónico é um dos resíduos que mais cresce no mundo. 
+        Em Portugal, os níveis de recolha ainda estão abaixo do desejado.
     </p>
 
-    <h2 style="margin-top: 40px;">Dados relevantes</h2>
+    <div class="dados-cards">
+        <div class="dados-card">
+            <h2>+60 mil toneladas</h2>
+            <p>De resíduos eletrónicos gerados em Portugal anualmente.</p>
+        </div>
 
-    <ul style="margin-top: 15px; line-height: 1.8;">
-        <li>Portugal recolhe menos lixo eletrónico do que a média da UE</li>
-        <li>Milhares de toneladas de resíduos eletrónicos são descartados todos os anos</li>
-        <li>A reciclagem permite recuperar materiais valiosos como cobre e ouro</li>
-    </ul>
+        <div class="dados-card">
+            <h2>Baixa Taxa</h2>
+            <p>Portugal recolhe menos lixo eletrónico que a média da UE.</p>
+        </div>
 
-    <h2 style="margin-top: 40px;">Fontes Oficiais</h2>
+        <div class="dados-card">
+            <h2>Crescimento</h2>
+            <p>O volume aumenta 2-3% ao ano a nível global.</p>
+        </div>
+    </div>
 
-    <ul style="margin-top: 15px; line-height: 1.8;">
-        <li>
-            <a href="https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Waste_statistics_-_electrical_and_electronic_equipment" target="_blank">
-                Eurostat
-            </a>
-        </li>
+    <section style="max-width: 800px; margin: 60px auto; text-align: left;">
+        <h2 style="color: #20c997; text-align: center; margin-bottom: 30px;">Dados Importantes</h2>
 
-        <li>
-            <a href="https://apambiente.pt/" target="_blank">
-                Agência Portuguesa do Ambiente
-            </a>
-        </li>
+        <ul style="line-height: 2; list-style: none;">
+            <li>Portugal recolhe apenas 30% do lixo eletrónico gerado</li>
+            <li>Globalmente, apenas 17% dos resíduos eletrónicos são reciclados</li>
+            <li>A reciclagem de 1 milhão de computadores poupa energia equivalente a 24.000 casas/ano</li>
+            <li>A UE é o maior produtor de lixo eletrónico per capita</li>
+            <li>A recuperação de materiais valiosos economiza 95% de energia em comparação com mineração</li>
+        </ul>
+    </section>
 
-        <li>
-            <a href="https://electrao.pt/" target="_blank">
-                Electrão
-            </a>
-        </li>
-    </ul>
+    <section class="dados-fontes" style="max-width: 800px; margin: 60px auto;">
+        <h2 style="color: #20c997; text-align: center; margin-bottom: 30px;">Fontes Oficiais</h2>
 
+        <ul style="line-height: 2;">
+            <li>
+                <a href="https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Waste_statistics_-_electrical_and_electronic_equipment" target="_blank">
+                    Eurostat - Estatísticas de Resíduos Eletrónicos
+                </a>
+            </li>
+            <li>
+                <a href="https://apambiente.pt/" target="_blank">
+                    Agência Portuguesa do Ambiente (APA)
+                </a>
+            </li>
+            <li>
+                <a href="https://electrao.pt/" target="_blank">
+                    Electrão - Sistema Integrado de Gestão de Resíduos
+                </a>
+            </li>
+            <li>
+                <a href="https://www.un.org/sustainabledevelopment/goals/" target="_blank">
+                    Objetivos de Desenvolvimento Sustentável da ONU
+                </a>
+            </li>
+        </ul>
+    </section>
 </main>
 
 {% endblock %}

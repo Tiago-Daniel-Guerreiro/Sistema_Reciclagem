@@ -4,35 +4,61 @@
 
 {% block content %}
 
-<main style="padding: 60px 20px; max-width: 900px; margin: auto;">
+<main class="informacoes">
+    <h1>Informação sobre Lixo Eletrónico</h1>
 
-    <h1>O que é Lixo Eletrónico?</h1>
-
-    <p style="margin-top: 15px;">
-        O lixo eletrónico refere-se a dispositivos eletrónicos descartados, como telemóveis,
-        computadores, pilhas e eletrodomésticos que já não têm utilidade.
+    <p class="info-intro">
+        O lixo eletrónico é um dos maiores desafios ambientais da atualidade. 
+        Conhecer o problema é o primeiro passo para agir.
     </p>
 
-    <h2 style="margin-top: 40px;">Por que isso importa?</h2>
+    <section class="info-bloco">
+        <div class="info-texto">
+            <h2>O que é lixo eletrónico?</h2>
+            <p>
+                O lixo eletrónico inclui todos os dispositivos elétricos e eletrónicos que deixam de ser utilizados,
+                como telemóveis, computadores, eletrodomésticos e pilhas. Estes equipamentos contêm materiais valiosos
+                mas também substâncias tóxicas que requerem tratamento especial.
+            </p>
+        </div>
+    </section>
 
-    <p style="margin-top: 15px;">
-        O descarte incorreto desses materiais pode causar graves danos ao meio ambiente e à saúde humana,
-        devido à presença de substâncias tóxicas.
-    </p>
+    <section class="info-centro">
+        <h2>Por que isso importa?</h2>
+        <p>
+            O descarte incorreto de equipamentos eletrónicos pode causar danos graves ao meio ambiente e à saúde humana,
+            devido à presença de substâncias tóxicas como mercúrio, cádmio e chumbo. A reciclagem adequada recupera
+            materiais valiosos e minimiza impactos ambientais negativos.
+        </p>
+    </section>
 
-    <p style="margin-top: 15px;">
-        A reciclagem permite recuperar materiais valiosos e reduzir a poluição, contribuindo para uma economia mais sustentável.
-    </p>
+    <section class="info-cards">
+        <div class="info-card">
+            <h3>Ambiente</h3>
+            <p>Poluição do solo, água e ar com substâncias tóxicas.</p>
+        </div>
 
-    <h2 style="margin-top: 40px;">Impactos do Lixo Eletrónico</h2>
+        <div class="info-card">
+            <h3>Saúde</h3>
+            <p>Exposição a metais pesados perigosos para os seres humanos.</p>
+        </div>
 
-    <ul style="margin-top: 15px; line-height: 1.8;">
-        <li>Poluição do solo e da água</li>
-        <li>Contaminação por metais pesados</li>
-        <li>Riscos para a saúde humana</li>
-        <li>Desperdício de recursos naturais</li>
-    </ul>
+        <div class="info-card">
+            <h3>Economia</h3>
+            <p>Perda de materiais valiosos recicláveis como cobre e ouro.</p>
+        </div>
+    </section>
 
+    <section class="info-centro destaque">
+        <h2>Benefícios da Reciclagem</h2>
+        <p>
+            A reciclagem de lixo eletrónico permite recuperar materiais importantes, reduzir a poluição,
+            poupar energia em processos de produção e promover uma economia mais sustentável e circular.
+        </p>
+        <p style="margin-top: 20px;">
+            <strong>Cada equipamento reciclado faz a diferença!</strong>
+        </p>
+    </section>
 </main>
 
 {% endblock %}

@@ -1,68 +1,136 @@
 {% extends "base.html" %}
 
-{% block title %}ReciclaTech{% endblock %}
+{% block title %}ReciclaTech - Reciclagem de Lixo Eletrónico em Lisboa{% endblock %}
 
 {% block content %}
 
-<!-- HERO -->
-<section class="hero">
-    <h1>RECICLA TECH</h1>
-    <p>Transforma o teu lixo eletrónico em um futuro sustentável.</p>
-    <a href="/mapa/" class="btn">Ver pontos de recolha</a>
-</section>
-
-<!-- PROBLEMA -->
-<section class="secao">
-    <h2>O Problema</h2>
+<section class="heroo">
+    <h1>E-LIXO ZERO LISBOA</h1>
+    <p class="slogan">"Liberdade, Saúde e Segurança na Era Digital"</p>
     <p>
-        Portugal é um dos países da União Europeia com menor taxa de recolha de lixo eletrónico.
-        O descarte incorreto contribui para a poluição do solo e da água.
+        Uma plataforma digital interativa que promove a reciclagem correta de lixo eletrónico em Lisboa,
+        ligando cidadãos a pontos de recolha de forma simples, rápida e consciente.
     </p>
+    <a href="/mapa/" class="btn">Encontrar pontos de recolha</a>
 </section>
 
-<!-- O QUE FAZER -->
-<section class="secao">
-    <h2>O que podes fazer</h2>
-    <ul>
-        <li>Levar equipamentos antigos a pontos de recolha</li>
-        <li>Não descartar no lixo comum</li>
-        <li>Reutilizar sempre que possível</li>
-    </ul>
-</section>
+<section class="secao problema">
+    <h2>O Problema do Lixo Eletrónico</h2>
+    
+    <p class="problema-texto">
+        Portugal apresenta uma das menores taxas de recolha de resíduos eletrónicos da União Europeia. 
+        Todos os anos, milhares de equipamentos são descartados de forma incorreta, contribuindo para a poluição 
+        ambiental e o desperdício de recursos valiosos.
+    </p>
 
-<!-- TIPOS -->
-<section class="secao">
-    <h2>Tipos de Lixo Eletrónico</h2>
+    <div class="problema-cards">
+        <div class="problema-card">
+            <h3>Poluição Ambiental</h3>
+            <p>O descarte incorreto contamina o solo e a água com substâncias tóxicas.</p>
+        </div>
 
-    <div class="cards">
-        <div class="card">Telemóveis</div>
-        <div class="card">Computadores</div>
-        <div class="card">Pilhas</div>
+        <div class="problema-card">
+            <h3>Riscos à Saúde</h3>
+            <p>Metais pesados presentes nos equipamentos podem afetar diretamente a saúde humana.</p>
+        </div>
+
+        <div class="problema-card">
+            <h3>Desperdício</h3>
+            <p>Materiais valiosos como cobre e ouro são perdidos ao não serem reciclados.</p>
+        </div>
     </div>
 </section>
 
-<!-- MAPA -->
-<section class="secao">
-    <h2>Encontra um ponto de recolha</h2>
-    <p>Consulta o mapa e descobre onde reciclar perto de ti.</p>
-    <a href="/mapa/" class="btn">Abrir mapa</a>
-</section>
+<section class="secao projeto">
+    <h2>O Projeto ReciclaTech</h2>
+    
+    <p class="projeto-texto">
+        O ReciclaTech é uma plataforma digital criada para sensibilizar a população sobre a importância 
+        da reciclagem de lixo eletrónico. O objetivo é facilitar o acesso à informação e incentivar práticas 
+        sustentáveis no dia a dia.
+    </p>
 
-<!-- DADOS -->
-<section class="secao">
-    <h2>Dados rápidos</h2>
+    <div class="projeto-cards">
+        <div class="projeto-card">
+            <h3>Localização</h3>
+            <p>Encontra facilmente pontos de recolha de resíduos eletrónicos em Lisboa.</p>
+        </div>
 
-    <div class="cards">
-        <div class="card">+60 mil toneladas de lixo eletrónico</div>
-        <div class="card">Baixa taxa de reciclagem em Portugal</div>
-        <div class="card">Impacto ambiental crescente</div>
+        <div class="projeto-card">
+            <h3>Informação</h3>
+            <p>Aprende como descartar corretamente diferentes tipos de equipamentos.</p>
+        </div>
+    </div>
+
+    <div class="projeto-destaque">
+        <h3>Sustentabilidade</h3>
+        <p>Promove práticas ecológicas e contribui para a proteção do meio ambiente.</p>
     </div>
 </section>
 
-<!-- CTA FINAL -->
+<section class="secao acoes">
+    <h2>O que pode fazer</h2>
+    
+    <p class="acoes-texto">
+        Pequenas ações fazem uma grande diferença. Veja como pode contribuir para um futuro mais sustentável.
+    </p>
+
+    <div class="acoes-cards">
+        <div class="acao-card">
+            <h3>Entregar corretamente</h3>
+            <p>Leve os seus equipamentos antigos a pontos de recolha apropriados.</p>
+        </div>
+
+        <div class="acao-card">
+            <h3>Não deitar no lixo comum</h3>
+            <p>Evite descartar lixo eletrónico juntamente com resíduos domésticos.</p>
+        </div>
+
+        <div class="acao-card">
+            <h3>Reutilizar</h3>
+            <p>Sempre que possível, reutilize ou doe equipamentos ainda funcionais.</p>
+        </div>
+
+        <div class="acao-card">
+            <h3>Reciclar pilhas</h3>
+            <p>Deposite pilhas e baterias em locais específicos para evitar contaminação.</p>
+        </div>
+    </div>
+</section>
+
+<section class="secao impacto">
+    <h2>Impacto do Lixo Eletrónico</h2>
+    
+    <p class="impacto-texto">
+        O lixo eletrónico é um dos resíduos que mais cresce no mundo. 
+        O seu impacto vai muito além do que se vê.
+    </p>
+
+    <div class="impacto-cards">
+        <div class="impacto-card">
+            <h3>+60 mil toneladas</h3>
+            <p>De resíduos eletrónicos gerados em Portugal.</p>
+        </div>
+
+        <div class="impacto-card">
+            <h3>Substâncias tóxicas</h3>
+            <p>Contaminam o ambiente e afetam a saúde.</p>
+        </div>
+
+        <div class="impacto-card">
+            <h3>Crescimento constante</h3>
+            <p>O volume de lixo eletrónico continua a aumentar todos os anos.</p>
+        </div>
+    </div>
+</section>
+
 <section class="secao destaque">
     <h2>Começa hoje</h2>
-    <p>Pequenas ações fazem grande diferença no planeta.</p>
-    <a href="/mapa/" class="btn">Reciclar agora</a>
+    <p>
+        Pequenas ações individuais geram um grande impacto coletivo.
+        Ajuda a construir uma Lisboa mais limpa e sustentável.
+    </p>
+    <a href="/mapa/" class="btn">Mapa de reciclagem</a>
 </section>
+
 {% endblock %}
