@@ -4,36 +4,29 @@ from routes.email_service import enviar_contacto_para_equipa
 
 home_route = Blueprint('home', __name__)
 
-print("DEBUG: routes/home.py carregado")
-
 @home_route.route("/", strict_slashes=False)
 def home():
     return render_template('index.html')
 
-
-@home_route.route("/mapa", strict_slashes=False, methods=["GET"])
+@home_route.route("/mapa", methods=["GET"])
 def mapa():
-    # Público: qualquer utilizador pode visualizar o mapa sem autenticação
-    print("DEBUG: home.mapa HIT (sem login)")
-    return render_template("mapa.html")
-
+    # Acesso liberado - qualquer utilizador pode visualizar o mapa
+    print("DEBUG: Acessando mapa sem login")
+    return "MAPA OK - Teste"
 
 @home_route.route("/informacoes", strict_slashes=False)
 def informacoes():
     return render_template("informacoes.html")
 
-
 @home_route.route("/dados", strict_slashes=False)
 def dados():
     return render_template("dados.html")
 
-
-@home_route.route("/classificacao", strict_slashes=False)
+@home_route.route('/classificacao', strict_slashes=False)
 def classificacao():
-    return render_template("classificacao.html")
+    return render_template('classificacao.html')
 
-
-@home_route.route("/contacto", strict_slashes=False, methods=["GET", "POST"])
+@home_route.route('/contacto', strict_slashes=False, methods=['GET', 'POST'])
 def contacto():
     if request.method == "POST":
         nome = (request.form.get("nome") or "").strip()
@@ -48,4 +41,4 @@ def contacto():
         flash("Mensagem enviada com sucesso. Obrigado pelo contacto!", "success")
         return redirect(url_for("home.contacto"))
 
-    return render_template("contacto.html")
+    return render_template('contacto.html')

@@ -5,6 +5,7 @@ from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from dotenv import load_dotenv
 import sqlite3
 import os
+from core.config import ServerConfig
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DOTENV_PATHS = [
@@ -21,9 +22,10 @@ EMAIL_REMETENTE = os.getenv("SMTP_USER", "")
 SENHA_APP = os.getenv("SMTP_PASS", "")
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+BASE_URL = (os.getenv("BASE_URL") or "http://127.0.0.1:5050").rstrip("/")
 
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "../templates/emails")
-DB_PATH = os.path.join(os.path.dirname(__file__), "../banco.db")
+DB_PATH = os.path.abspath(ServerConfig().db_path)
 
 env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
 
@@ -106,7 +108,7 @@ def enviar_novo_ponto(ponto):
     cursor.execute("""
         SELECT email, nome
         FROM utilizadores
-        WHERE receber_notificacoes = 1
+        WHERE receber_notificacoes = 1 AND email_verificado = 1
     """)
 
     usuarios = cursor.fetchall()
@@ -116,15 +118,24 @@ def enviar_novo_ponto(ponto):
         email = row["email"]
         nome_usuario = row["nome"]
 
+        lat = ponto.get("latitude", ponto.get("lat", ""))
+        lng = ponto.get("longitude", ponto.get("lng", ""))
+        ponto_id = ponto.get("id")
+        link_mapa = f"{BASE_URL}/mapa"
+        link_ponto = f"{BASE_URL}/map/?focus={ponto_id}" if ponto_id is not None else link_mapa
+
         contexto = {
             "usuario": nome_usuario,
             "ponto_nome": ponto['nome'],
-            "latitude": ponto['latitude'],
-            "longitude": ponto['longitude'],
-            "horario": ponto['horario'],
-            "contacto": ponto['contacto'],
-            "website": ponto['website'],
-            "descricao": ponto['descricao']
+            "ponto_id": ponto_id,
+            "latitude": lat,
+            "longitude": lng,
+            "horario": ponto.get('horario', ''),
+            "contacto": ponto.get('contacto', ''),
+            "website": ponto.get('website', ''),
+            "descricao": ponto.get('descricao', ''),
+            "link_mapa": link_mapa,
+            "link_ponto": link_ponto,
         }
 
         enviar_email(
