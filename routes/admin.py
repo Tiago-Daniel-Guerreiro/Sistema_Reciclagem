@@ -2,12 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from functools import wraps
 import sqlite3
 import os
-import json
-from pathlib import Path
 from datetime import datetime
 from core.config import ServerConfig
-from core.database import DatabaseManager
-from routes.email_service import enviar_novo_ponto
 
 admin_route = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -15,25 +11,6 @@ admin_route = Blueprint('admin', __name__, url_prefix='/admin')
 def get_db_path():
     config = ServerConfig()
     return config.db_path
-
-def refresh_snapshot():
-    """Gera novamente o ficheiro `templates/Map/data/snapshot.json` a partir da BD.
-
-    O mapa Leaflet (em `templates/Map/`) consome este ficheiro estático.
-    """
-    cfg = ServerConfig()
-    db = DatabaseManager(cfg.db_path)
-    snapshot = db.export_snapshot()
-    snapshot_path = Path(__file__).resolve().parent.parent / "templates" / "Map" / "data" / "snapshot.json"
-    snapshot_path.parent.mkdir(parents=True, exist_ok=True)
-    snapshot_path.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2), encoding="utf-8")
-
-def _get_or_create_fonte_id(conn: sqlite3.Connection, nome_fonte: str):
-    nome_fonte = (nome_fonte or "manual").strip() or "manual"
-    now = datetime.utcnow().isoformat()
-    conn.execute("INSERT OR IGNORE INTO fontes (nome, created_at) VALUES (?, ?)", (nome_fonte, now))
-    row = conn.execute("SELECT id FROM fontes WHERE nome = ? LIMIT 1", (nome_fonte,)).fetchone()
-    return int(row["id"]) if row else 1
 
 def conectar_db():
     conn = sqlite3.connect(get_db_path())
@@ -95,98 +72,6 @@ def dashboard():
     
     conn.close()
     return render_template('admin/dashboard.html', stats=stats, pontos_reportados=pontos_reportados)
-
-
-@admin_route.route('/pontos', methods=['GET'])
-@require_admin
-def pontos_manage():
-    q = (request.args.get("q") or "").strip().lower()
-    conn = conectar_db()
-    cursor = conn.cursor()
-    if q:
-        cursor.execute(
-            "SELECT id, nome, lat, lng, updated_at FROM pontos WHERE is_removed = 0 AND LOWER(COALESCE(nome,'')) LIKE ? ORDER BY updated_at DESC LIMIT 200",
-            (f"%{q}%",),
-        )
-    else:
-        cursor.execute(
-            "SELECT id, nome, lat, lng, updated_at FROM pontos WHERE is_removed = 0 ORDER BY updated_at DESC LIMIT 200"
-        )
-    pontos = cursor.fetchall()
-    conn.close()
-    return render_template("admin/pontos_manage.html", pontos=pontos, q=q)
-
-
-@admin_route.route('/pontos/novo', methods=['GET', 'POST'])
-@require_admin
-def pontos_novo():
-    conn = conectar_db()
-    cursor = conn.cursor()
-    categorias = cursor.execute("SELECT id, nome_exibicao FROM categorias ORDER BY nome_exibicao").fetchall()
-
-    if request.method == "POST":
-        nome = (request.form.get("nome") or "").strip()
-        lat = (request.form.get("lat") or "").strip()
-        lng = (request.form.get("lng") or "").strip()
-        fonte_nome = (request.form.get("fonte") or "manual").strip()
-        categorias_ids = request.form.getlist("categorias")
-
-        if not nome or not lat or not lng:
-            flash("Preenche pelo menos Nome, Latitude e Longitude.", "warning")
-            conn.close()
-            return render_template("admin/ponto_form.html", categorias=categorias, form=request.form)
-
-        try:
-            lat_f = float(lat.replace(",", "."))
-            lng_f = float(lng.replace(",", "."))
-        except ValueError:
-            flash("Latitude/Longitude inválidas.", "danger")
-            conn.close()
-            return render_template("admin/ponto_form.html", categorias=categorias, form=request.form)
-
-        now = datetime.utcnow().replace(microsecond=0).isoformat()
-        try:
-            fonte_id = _get_or_create_fonte_id(conn, fonte_nome)
-            cur = conn.cursor()
-            cur.execute(
-                "INSERT INTO pontos (lat, lng, fonte_id, source_id, is_removed, nome, created_at, updated_at) VALUES (?, ?, ?, ?, 0, ?, ?, ?)",
-                (lat_f, lng_f, fonte_id, fonte_nome, nome, now, now),
-            )
-            ponto_id = cur.lastrowid
-
-            # categorias (opcional)
-            for cid in categorias_ids:
-                try:
-                    conn.execute(
-                        "INSERT OR IGNORE INTO ponto_categorias (ponto_id, categoria_id) VALUES (?, ?)",
-                        (ponto_id, int(cid)),
-                    )
-                except Exception:
-                    continue
-
-            conn.commit()
-
-            # email + snapshot
-            try:
-                enviar_novo_ponto({"id": ponto_id, "nome": nome, "lat": lat_f, "lng": lng_f})
-            except Exception as e:
-                print(f"[ADMIN] Falha ao enviar email de novo ponto: {e}", flush=True)
-
-            try:
-                refresh_snapshot()
-            except Exception as e:
-                print(f"[ADMIN] Falha ao atualizar snapshot.json: {e}", flush=True)
-
-            flash("Ponto criado com sucesso!", "success")
-            conn.close()
-            return redirect(url_for("admin.pontos_manage"))
-        except Exception as e:
-            flash(f"Erro ao criar ponto: {e}", "danger")
-            conn.close()
-            return render_template("admin/ponto_form.html", categorias=categorias, form=request.form)
-
-    conn.close()
-    return render_template("admin/ponto_form.html", categorias=categorias, form={})
 
 
 @admin_route.route('/table/<table_name>', methods=['GET'])
@@ -281,28 +166,6 @@ def add_record(table_name):
             cursor.execute(f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})", 
                          list(data.values()))
             conn.commit()
-            created_id = cursor.lastrowid
-
-            if table_name == "pontos" and created_id:
-                try:
-                    row = conn.execute("SELECT * FROM pontos WHERE id = ?", (created_id,)).fetchone()
-                    if row:
-                        ponto = dict(row)
-                        # Normalizar nomes para o email template (compatibilidade)
-                        ponto_for_email = {
-                            "id": ponto.get("id"),
-                            "nome": ponto.get("nome") or "Ponto de Recolha",
-                            "lat": ponto.get("lat"),
-                            "lng": ponto.get("lng"),
-                        }
-                        enviar_novo_ponto(ponto_for_email)
-                except Exception as e:
-                    print(f"[ADMIN] Falha ao enviar email de novo ponto: {e}", flush=True)
-
-                try:
-                    refresh_snapshot()
-                except Exception as e:
-                    print(f"[ADMIN] Falha ao atualizar snapshot.json: {e}", flush=True)
             
             flash(f"Registro adicionado com sucesso!", "success")
             return redirect(url_for('admin.list_table', table_name=table_name))

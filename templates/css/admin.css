@@ -1,4 +1,3 @@
-/* ===== ROOT COLORS ===== */
 :root {
     --primary: #3498db;
     --primary-dark: #2980b9;
@@ -19,7 +18,6 @@
     --white: #ffffff;
 }
 
-/* ===== BODY & BASE ===== */
 * {
     box-sizing: border-box;
 }
@@ -49,7 +47,6 @@ a:hover {
     text-decoration: underline;
 }
 
-/* ===== NAVBAR ===== */
 .navbar {
     background-color: var(--text-dark) !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -89,7 +86,6 @@ a:hover {
     padding: 2rem 0;
 }
 
-/* ===== CARDS ===== */
 .card {
     border: none;
     border-radius: 8px;
@@ -147,7 +143,6 @@ a:hover {
     color: var(--white) !important;
 }
 
-/* ===== TABLES ===== */
 .table {
     font-size: 0.95rem;
     margin-bottom: 0;
@@ -196,7 +191,6 @@ a:hover {
     background-color: transparent;
 }
 
-/* ===== BUTTONS ===== */
 .btn {
     border-radius: 6px;
     font-weight: 500;
@@ -331,10 +325,14 @@ a:hover {
 .btn-group {
     display: flex;
     gap: 0.5rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
-/* ===== FORMS ===== */
+.btn-group .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
 .form-control,
 .form-select,
 textarea {
@@ -386,7 +384,6 @@ select.form-control {
     cursor: pointer;
 }
 
-/* ===== ALERTS ===== */
 .alert {
     padding: 1rem 1.25rem;
     border-radius: 6px;
@@ -418,7 +415,6 @@ select.form-control {
     border-left-color: var(--info);
 }
 
-/* ===== BADGES ===== */
 .badge {
     display: inline-block;
     padding: 0.35rem 0.65rem;
@@ -458,7 +454,6 @@ select.form-control {
     color: var(--white);
 }
 
-/* ===== MODALS ===== */
 .modal-content {
     border: none;
     border-radius: 8px;
@@ -493,7 +488,6 @@ select.form-control {
     padding: 1rem 1.5rem;
 }
 
-/* ===== LIST GROUPS ===== */
 .list-group-item {
     border: 1px solid var(--border);
     padding: 1rem;
@@ -525,7 +519,6 @@ select.form-control {
     color: var(--white) !important;
 }
 
-/* ===== TEXT ===== */
 .text-dark {
     color: var(--text-dark) !important;
 }
@@ -554,7 +547,6 @@ select.form-control {
     color: var(--white) !important;
 }
 
-/* ===== SPACING ===== */
 .mt-1 {
     margin-top: 0.25rem;
 }
@@ -607,7 +599,6 @@ select.form-control {
     padding: 1.5rem;
 }
 
-/* ===== DISPLAY ===== */
 .d-flex {
     display: flex;
 }
@@ -632,7 +623,6 @@ select.form-control {
     gap: 1rem;
 }
 
-/* ===== PRE / CODE ===== */
 pre {
     background-color: var(--bg-light);
     border: 1px solid var(--border);
@@ -657,14 +647,12 @@ code {
     color: var(--danger);
 }
 
-/* ===== ADMIN BADGE ===== */
 .badge-admin {
     background-color: var(--danger) !important;
     color: var(--white) !important;
     font-weight: 700;
 }
 
-/* ===== SOFT DELETE ===== */
 .soft-deleted {
     opacity: 0.6;
     background-color: #f8d7da !important;
@@ -675,8 +663,11 @@ code {
     text-decoration: line-through;
 }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
+    .container-fluid {
+        padding: 0 15px;
+    }
+
     .btn-group {
         flex-direction: column;
     }
@@ -691,13 +682,155 @@ code {
 
     .table thead th {
         padding: 0.75rem 0.5rem;
+        font-size: 0.75rem;
     }
 
     .table tbody td {
         padding: 0.5rem;
+        font-size: 0.8rem;
     }
 
     .card-body {
         padding: 1rem;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .btn-sm {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+    }
+
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .alert {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert h4 {
+        font-size: 1rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container-fluid {
+        padding: 0 10px;
+    }
+
+    .table {
+        font-size: 0.75rem;
+    }
+
+    .table thead th {
+        padding: 0.5rem 0.3rem;
+        font-size: 0.65rem;
+    }
+
+    .table tbody td {
+        padding: 0.4rem 0.3rem;
+        font-size: 0.7rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.65rem;
+        min-width: 35px;
+    }
+
+    .btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .badge {
+        font-size: 0.6rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .card {
+        margin-bottom: 0.75rem;
+        border-radius: 4px;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .alert {
+        padding: 0.5rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    h1 {
+        font-size: 1.3rem;
+        margin-bottom: 0.3rem;
+    }
+
+    h2 {
+        font-size: 1.1rem;
+    }
+
+    h3 {
+        font-size: 0.95rem;
+    }
+
+    h4 {
+        font-size: 0.85rem;
+    }
+
+    h5 {
+        font-size: 0.8rem;
+    }
+
+    .d-flex {
+        gap: 0.5rem;
+    }
+
+    .gap-1 {
+        gap: 4px !important;
+    }
+
+    .gap-2 {
+        gap: 6px !important;
+    }
+
+    .text-end {
+        text-align: right;
+    }
+
+    .row {
+        margin-right: -5px;
+        margin-left: -5px;
+    }
+
+    .col-md-6,
+    .col-lg-3 {
+        padding-right: 5px;
+        padding-left: 5px;
     }
 }

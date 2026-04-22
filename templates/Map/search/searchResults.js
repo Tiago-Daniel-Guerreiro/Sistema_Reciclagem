@@ -72,19 +72,11 @@ const SearchResults = (function () {
         MapModule.getMap().setView([resultado.lat, resultado.lng], 14);
 
         if (resultado.polygon_geojson) MapModule.showArea?.(resultado);
-
-        if (resultado?._kind === 'recolha') {
-            try { RecolhaMarker?.focus?.(resultado, 16); } catch (e) { /* noop */ }
-        }
     }
 
     function openDetails(resultado) {
         if (!DetalhesModule?.abrir) return;
 
-        if (resultado?._kind === 'recolha') {
-            DetalhesModule.abrir(resultado);
-            return;
-        }
         DetalhesModule.abrir(resultado);
     }
 

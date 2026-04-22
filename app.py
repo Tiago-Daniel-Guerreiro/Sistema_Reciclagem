@@ -43,15 +43,10 @@ def create_app(fast_mode: bool = False) -> Flask:
     app.config["CACHE_MANAGER"] = cache_manager
 
     # Registra blueprints de autenticação
-    print("DEBUG: Registrando blueprint home_route")
     app.register_blueprint(home_route)
-    print("DEBUG: Registrando blueprint autenticar_route")
     app.register_blueprint(autenticar_route)
-    print("DEBUG: Registrando blueprint api_route")
     app.register_blueprint(api_route)
-    print("DEBUG: Registrando blueprint admin_route")
     app.register_blueprint(admin_route)
-    print("DEBUG: Registrando blueprint relatos_route")
     app.register_blueprint(relatos_route)
 
     # Caminho da pasta de recursos do mapa
@@ -60,18 +55,12 @@ def create_app(fast_mode: bool = False) -> Flask:
 
     data_folder = static_folder / "data"
     data_folder.mkdir(parents=True, exist_ok=True)
-
     # Inicializa dados
     _init_data(db, sync_service, db_file_exists, data_folder, fast_mode)
     
     # Registra rotas
-    print("DEBUG: Chamando _register_routes")
     _register_routes(app, static_folder)
 
-    print("DEBUG: App criado com sucesso")
-    print("DEBUG: Rotas registradas:")
-    for rule in app.url_map.iter_rules():
-        print(f"  {rule.rule} -> {rule.endpoint}")
     return app
 
 
@@ -157,10 +146,17 @@ def _load_from_filtered_jsons(db):
             print(f"[App] Erro ao carregar {source}_filtered.json: {e}", flush=True)
 
 def _register_routes(app, static_folder):
-    print("DEBUG: Iniciando _register_routes")
     @app.get("/css/<path:filename>")
     def serve_css(filename):
         return send_from_directory(PROJECT_ROOT / "templates" / "css", filename)
+    
+    @app.get("/imagens/<path:filename>")
+    def serve_imagens(filename):
+        return send_from_directory(PROJECT_ROOT / "templates" / "imagens", filename)
+    
+    @app.get("/404")
+    def page_404():
+        return render_template("404.html"), 404
     
     @app.get("/map/")
     def serve_map_index():
@@ -169,20 +165,10 @@ def _register_routes(app, static_folder):
     @app.get("/map/<path:filename>")
     def serve_map_assets(filename):
         return send_from_directory(static_folder, filename)
-
-    @app.get("/teste")
-    def teste():
-        print("DEBUG: Rota /teste chamada")
-        return "Teste OK"
     
-    print("DEBUG: _register_routes concluído")
-    
-    print("DEBUG: Rotas registradas:")
-    for rule in app.url_map.iter_rules():
-        print(f"  {rule.rule} -> {rule.endpoint}")
-    
-    print("DEBUG: App criado com sucesso")
-    return app
+    @app.errorhandler(404)
+    def page_not_found(error):
+        return redirect("/404")
 
 # Detectar modo fast e criar app apenas se main
 if __name__ == "__main__":
@@ -193,7 +179,7 @@ if __name__ == "__main__":
     app = create_app(fast_mode=fast_mode)
     cfg = app.config["SERVER_CONFIG"]
     try:
-        app.run(host=cfg.host, port=cfg.port, debug=True)
+        app.run(host=cfg.host, port=cfg.port, debug=cfg.debug)
     except KeyboardInterrupt:
         print("\n[App] Encerrando...", flush=True)
     finally:

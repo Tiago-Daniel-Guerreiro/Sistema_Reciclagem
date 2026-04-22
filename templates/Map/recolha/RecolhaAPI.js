@@ -36,12 +36,12 @@ const RecolhaAPI = (function () {
 
     async function _needsUpdate() {
         const serverTimestamp = await _getCacheTimestamp();
-        if (serverTimestamp === null) return { needsUpdate: true, serverTimestamp: null }; // Se falhar, atualiza por segurança
+        if (serverTimestamp === null) return true; // Se falhar, atualiza por segurança
 
         const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-        if (cachedTimestamp === null) return { needsUpdate: true, serverTimestamp }; // Sem cache
+        if (cachedTimestamp === null) return true; // Sem cache
 
-        return { needsUpdate: serverTimestamp > parseInt(cachedTimestamp, 10), serverTimestamp };
+        return serverTimestamp > parseInt(cachedTimestamp, 10);
     }
 
     async function _fetchCategorias() {
@@ -108,7 +108,7 @@ const RecolhaAPI = (function () {
 
         try {
             // Verificar se dados foram atualizados
-            const { needsUpdate, serverTimestamp } = await _needsUpdate();
+            const needsUpdate = await _needsUpdate();
 
             if (!needsUpdate && localStorage.getItem('recolha_pontos')) {
                 // Cache ainda é válido, carregar de localStorage
@@ -150,8 +150,7 @@ const RecolhaAPI = (function () {
             localStorage.setItem('recolha_categorias_eletronicos', JSON.stringify(_categoriasEletronicos));
             localStorage.setItem('recolha_pontos', JSON.stringify(_pontos));
             localStorage.setItem('recolha_pontos_count', String(_pontos?.length || 0));
-            // Guardar timestamp do servidor para comparar corretamente no próximo refresh
-            localStorage.setItem(CACHE_TIMESTAMP_KEY, String(serverTimestamp ?? Date.now()));
+            localStorage.setItem(CACHE_TIMESTAMP_KEY, String(Date.now()));
 
             return {
                 categoriasGerais: _categoriasGerais,
@@ -186,7 +185,6 @@ const RecolhaAPI = (function () {
                 localStorage.setItem('recolha_categorias_eletronicos', JSON.stringify(_categoriasEletronicos));
                 localStorage.setItem('recolha_pontos', JSON.stringify(_pontos));
                 localStorage.setItem('recolha_pontos_count', String(_pontos.length));
-                // Snapshot não garante Last-Modified; ainda assim guardamos um timestamp local
                 localStorage.setItem(CACHE_TIMESTAMP_KEY, String(Date.now()));
 
                 return {
