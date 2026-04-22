@@ -11,13 +11,38 @@
 <body>
     <header class="header">
         <a href="/" class="logo">RECICLATECH ♻️</a>
-        <nav class="menu">
+        <button class="menu-toggle" id="menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav class="menu" id="menu">
             <a href="/mapa/" {% if request.path == '/mapa/' or request.path == '/mapa' %}class="ativo"{% endif %}>MAPA</a>
             <a href="/classificacao" {% if request.path == '/classificacao' %}class="ativo"{% endif %}>CLASSIFICAÇÃO</a>
             <a href="/informacoes" {% if request.path == '/informacoes' %}class="ativo"{% endif %}>INFORMAÇÕES</a>
             <a href="/dados" {% if request.path == '/dados' %}class="ativo"{% endif %}>DADOS</a>
             <a href="/contacto" {% if request.path == '/contacto' %}class="ativo"{% endif %}>CONTACTO</a>
+            
+            <!-- Auth dentro da sidebar em responsivo -->
+            <div class="auth-menu">
+                {% if session.get('user_id') %}
+                    <!-- Autenticado -->
+                    {% if session.get('email_pendente_verificacao') %}
+                        <a href="/verificar-email" class="verificar">VERIFICAÇÃO</a>
+                    {% endif %}
+                    {% if session.get('usuario_tipo') == 1 or session.get('admin') %}
+                        <a href="/admin/" class="admin" title="Painel de Admin">ADMIN</a>
+                    {% endif %}
+                    <span class="user-info">{{ session.get('user_email') or 'Utilizador' }}</span>
+                    <a href="/logout" class="logout">LOGOUT</a>
+                {% else %}
+                    <!-- Não autenticado -->
+                    <a href="/login" class="login">Login</a>
+                    <a href="/registo" class="registar">Registar</a>
+                {% endif %}
+            </div>
         </nav>
+        <!-- Auth fixa no header em desktop -->
         <div class="auth" id="auth-area">
             {% if session.get('user_id') %}
                 <!-- Autenticado -->
@@ -36,10 +61,45 @@
             {% endif %}
         </div>
     </header>
+    <div class="menu-overlay" id="menu-overlay"></div>
     {% block content %}{% endblock %}
     <footer class="footer">
         <p>© 2026 ReciclaTech - Todos os direitos reservados</p>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Menu hambúrguer
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const menu = document.getElementById('menu');
+            const overlay = document.getElementById('menu-overlay');
+            
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    menu.classList.toggle('ativo');
+                    overlay.classList.toggle('ativo');
+                });
+                
+                overlay.addEventListener('click', function() {
+                    menu.classList.remove('ativo');
+                    overlay.classList.remove('ativo');
+                });
+                
+                // Fechar menu ao clicar em links e no auth
+                const closeMenu = () => {
+                    menu.classList.remove('ativo');
+                    overlay.classList.remove('ativo');
+                };
+                
+                document.querySelectorAll('.menu a').forEach(link => {
+                    link.addEventListener('click', closeMenu);
+                });
+                
+                document.querySelectorAll('.auth-menu a').forEach(link => {
+                    link.addEventListener('click', closeMenu);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

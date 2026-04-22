@@ -153,6 +153,114 @@ a {
     font-weight: 600;
 }
 
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 1001;
+}
+
+.menu-toggle span {
+    width: 25px;
+    height: 3px;
+    background-color: white;
+    border-radius: 2px;
+    transition: 0.3s;
+}
+
+.auth-menu {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.auth-menu a,
+.auth-menu span {
+    display: block;
+    padding: 15px 20px;
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.menu-overlay.ativo {
+    display: block;
+}
+
+/* Breakpoint responsivo 1220px */
+@media (max-width: 1220px) {
+    .menu-toggle {
+        display: flex;
+        flex: 0 0 auto;
+    }
+
+    .auth {
+        display: none;
+    }
+
+    .menu {
+        position: fixed;
+        left: 0;
+        top: 60px;
+        width: 100%;
+        max-width: 300px;
+        height: calc(100vh - 60px);
+        background-color: #1a1a1a;
+        flex-direction: column;
+        gap: 0;
+        padding: 0;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+        overflow-y: auto;
+    }
+
+    .menu.ativo {
+        transform: translateX(0);
+    }
+
+    .menu a {
+        display: block;
+        padding: 15px 20px;
+        color: white;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .menu a:hover {
+        background-color: rgba(32, 201, 151, 0.1);
+    }
+
+    .menu a::after {
+        display: none;
+    }
+
+    .menu .ativo {
+        background-color: rgba(32, 201, 151, 0.2);
+        border-left: 4px solid #20c997;
+    }
+
+    .auth-menu {
+        display: flex;
+    }
+}
+
 .hero {
     text-align: center;
     padding: 120px 20px;
@@ -623,29 +731,72 @@ footer {
 }
 
 @media (max-width: 768px) {
+    * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
     .header {
-        flex-wrap: wrap;
-        padding: 15px 20px;
-        gap: 20px;
+        flex-wrap: nowrap;
+        padding: 12px 15px;
+        gap: 15px;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .logo {
+        font-size: 18px;
     }
 
     .menu {
-        gap: 15px;
-        order: 3;
-        width: 100%;
-        justify-content: center;
-        flex-wrap: wrap;
+        display: none;
+    }
+
+    .menu.ativo {
+        display: flex;
+    }
+
+    .menu a {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .auth {
+        display: none;
+    }
+
+    .auth-menu a,
+    .auth-menu span {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+
+    .heroo {
+        padding: 40px 20px;
     }
 
     .heroo h1 {
-        font-size: 40px;
+        font-size: 32px;
+        margin-bottom: 15px;
+    }
+
+    .heroo p {
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+
+    .container {
+        padding: 0 15px;
     }
 
     .problema-cards,
     .projeto-cards,
     .acoes-cards,
     .impacto-cards {
-        gap: 15px;
+        gap: 12px;
+        flex-direction: column;
+        align-items: center;
     }
 
     .problema-card,
@@ -653,19 +804,241 @@ footer {
     .acao-card,
     .impacto-card {
         width: 100%;
-        max-width: 300px;
+        max-width: 320px;
+        padding: 20px;
     }
 
     .grid-classificacao {
         grid-template-columns: 1fr;
     }
 
+    .card-class {
+        width: 100%;
+        max-width: none;
+    }
+
     .info-bloco {
-        gap: 20px;
+        gap: 15px;
+        flex-direction: column;
+    }
+
+    .info-centro {
+        padding: 25px 15px;
     }
 
     .info-img {
         width: 100%;
-        max-width: 300px;
+        max-width: 280px;
+    }
+
+    .contacto-form {
+        max-width: 100%;
+        padding: 25px 15px;
+        margin: 20px auto;
+    }
+
+    .contacto-form input,
+    .contacto-form textarea {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .lista {
+        padding-left: 20px;
+    }
+
+    .table {
+        font-size: 13px;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px 5px;
+    }
+
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .badge {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    h4 {
+        font-size: 16px;
+    }
+
+    h5 {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: 10px 10px;
+        gap: 10px;
+    }
+
+    .logo {
+        font-size: 16px;
+    }
+
+    .menu {
+        gap: 5px;
+        font-size: 11px;
+        max-width: 280px;
+    }
+
+    .menu a {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+
+    .auth {
+        display: none;
+    }
+
+    .auth-menu a,
+    .auth-menu span {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+
+    .heroo {
+        padding: 30px 15px;
+    }
+
+    .heroo h1 {
+        font-size: 24px;
+        margin-bottom: 12px;
+    }
+
+    .heroo p {
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .container {
+        padding: 0 12px;
+    }
+
+    .problema-cards,
+    .projeto-cards,
+    .acoes-cards,
+    .impacto-cards {
+        gap: 10px;
+    }
+
+    .problema-card,
+    .projeto-card,
+    .acao-card,
+    .impacto-card {
+        width: 100%;
+        max-width: 280px;
+        padding: 15px;
+    }
+
+    .problema-card h3,
+    .projeto-card h3,
+    .acao-card h3,
+    .impacto-card h3 {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .problema-card p,
+    .projeto-card p,
+    .acao-card p,
+    .impacto-card p {
+        font-size: 13px;
+    }
+
+    .info-centro {
+        padding: 20px 12px;
+    }
+
+    .contacto-form {
+        max-width: 100%;
+        padding: 20px 12px;
+        margin: 15px auto;
+    }
+
+    .contacto-form input,
+    .contacto-form textarea,
+    .contacto-form button {
+        font-size: 14px;
+        padding: 10px;
+        width: 100%;
+    }
+
+    .table {
+        font-size: 12px;
+    }
+
+    .table th,
+    .table td {
+        padding: 6px 3px;
+    }
+
+    .btn-sm {
+        padding: 4px 6px;
+        font-size: 10px;
+        min-width: auto !important;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    h3 {
+        font-size: 16px;
+    }
+
+    h4 {
+        font-size: 14px;
+    }
+
+    h5 {
+        font-size: 13px;
+    }
+
+    .btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .card {
+        margin-bottom: 12px;
+    }
+
+    .accordion-item {
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .d-flex {
+        flex-wrap: wrap;
+    }
+
+    .gap-1 {
+        gap: 4px !important;
     }
 }

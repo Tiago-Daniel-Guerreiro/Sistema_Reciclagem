@@ -65,14 +65,14 @@
                         </td>
                     {% endfor %}
                     <td>
-                        <div class="btn-group btn-group-sm" role="group">
+                        <div class="d-flex gap-1" style="flex-wrap: nowrap; align-items: center;">
                             <a href="{{ url_for('admin.view_record', table_name=table_name, record_id=row[pk_column]) }}" 
-                               class="btn btn-info" title="Ver">Ver</a>
+                               class="btn btn-info btn-sm" title="Ver" style="min-width: 50px;">Ver</a>
                             <a href="{{ url_for('admin.edit_record', table_name=table_name, record_id=row[pk_column]) }}" 
-                               class="btn btn-warning" title="Editar">Editar</a>
+                               class="btn btn-warning btn-sm" title="Editar" style="min-width: 60px;">Editar</a>
                             <form method="POST" action="{{ url_for('admin.delete_record', table_name=table_name, record_id=row[pk_column]) }}" 
                                   style="display:inline;" onsubmit="return confirm('Tem certeza que quer deletar este registro?');">
-                                <button type="submit" class="btn btn-danger" title="Deletar">Deletar</button>
+                                <button type="submit" class="btn btn-danger btn-sm" title="Deletar" style="min-width: 65px;">Deletar</button>
                             </form>
                         </div>
                     </td>
