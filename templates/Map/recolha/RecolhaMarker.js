@@ -90,6 +90,23 @@ const RecolhaMarker = (function () {
         return (_markers[ponto.id] = marker);
     }
 
+    function focus(ponto, zoom = 16) {
+        if (!ponto || !_clusterGroup) return false;
+        const marker = _createMarker(ponto);
+        try {
+            // Garante que o marker é mostrado mesmo dentro de clusters
+            _clusterGroup.zoomToShowLayer(marker, () => {
+                MapModule.getMap()?.setView([ponto.lat, ponto.lng], zoom);
+                // Abre detalhes em vez de depender de popup (mais consistente)
+                if (DetalhesModule?.abrir) DetalhesModule.abrir(ponto);
+            });
+            return true;
+        } catch (e) {
+            console.warn('[RecolhaMarker.focus] Falha ao focar ponto:', e);
+            return false;
+        }
+    }
+
     async function _renderBatch(pontos, signal) {
         if (!pontos?.length || !_clusterGroup) return;
 
@@ -215,6 +232,7 @@ const RecolhaMarker = (function () {
         renderMarkersEmChunks,
         aplicarFiltros,
         limpar,
-        getClusterGroup: () => _clusterGroup
+        getClusterGroup: () => _clusterGroup,
+        focus
     };
 })();

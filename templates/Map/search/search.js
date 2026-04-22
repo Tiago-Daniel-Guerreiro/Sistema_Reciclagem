@@ -39,6 +39,30 @@ const SearchModule = (function () {
 
         SearchSuggestions.hide();
 
+        // 1) Pesquisa local nos pontos de recolha (vindos da BD via API/snapshot)
+        try {
+            const pontos = RecolhaManager?.getPontos?.() || [];
+            const q = termo.toLowerCase();
+            const matches = (pontos || [])
+                .filter(p => (p?.nome || '').toLowerCase().includes(q))
+                .slice(0, 30)
+                .map(p => ({
+                    ...p,
+                    _kind: 'recolha',
+                    name: p.nome,
+                    tipo: 'recolha',
+                    tipo_traduzido: 'Ponto de recolha'
+                }));
+
+            if (matches.length > 0) {
+                SearchResults.display(matches);
+                return;
+            }
+        } catch (e) {
+            console.warn('[SearchModule] Falha na pesquisa local de pontos:', e);
+        }
+
+        // 2) Pesquisa de lugares (Nominatim) como fallback
         ApiClient.searchNominatim(termo, { type: document.getElementById('search-type-filter')?.value || '', limit: 15 })
             .then(results => { displaySearchResults(results); })
             .catch(err => {

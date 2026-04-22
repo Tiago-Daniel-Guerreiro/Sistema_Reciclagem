@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Novo ponto de recolha</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; line-height: 1.5; color: #111;">
+    <h2 style="margin: 0 0 12px;">Olá {{ usuario }},</h2>
+
+    <p style="margin: 0 0 12px;">
+      Foi adicionado um novo ponto de recolha na plataforma:
+      <strong>{{ ponto_nome }}</strong>.
+    </p>
+
+    <ul style="margin: 0 0 12px; padding-left: 18px;">
+      <li><strong>Latitude</strong>: {{ latitude }}</li>
+      <li><strong>Longitude</strong>: {{ longitude }}</li>
+      {% if horario %}<li><strong>Horário</strong>: {{ horario }}</li>{% endif %}
+      {% if contacto %}<li><strong>Contacto</strong>: {{ contacto }}</li>{% endif %}
+      {% if website %}<li><strong>Website</strong>: {{ website }}</li>{% endif %}
+    </ul>
+
+    {% if descricao %}
+      <p style="margin: 0 0 12px;">
+        <strong>Descrição</strong>: {{ descricao }}
+      </p>
+    {% endif %}
+
+    <p style="margin: 0;">
+      <strong>Ver diretamente o novo ponto:</strong>
+      <a href="{{ link_ponto }}">Abrir no mapa</a>
+    </p>
+
+    <p style="margin: 12px 0 0;">
+      Se preferires, podes abrir o mapa geral aqui:
+      <a href="{{ link_mapa }}">Abrir mapa</a>
+    </p>
+  </body>
+</html>

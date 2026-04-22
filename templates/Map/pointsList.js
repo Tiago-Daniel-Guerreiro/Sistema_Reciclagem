@@ -9,7 +9,6 @@ const PointsListModule = (function () {
         const actions = Utils.createElement('div', 'points-list-actions');
         actions.appendChild(Utils.createElement('button', 'btn-details', 'Detalhes'));
         actions.appendChild(Utils.createElement('button', 'btn-show', 'Mostrar'));
-        actions.appendChild(Utils.createElement('button', 'btn-remove', 'Remover'));
         item.appendChild(actions);
 
         return item;
@@ -18,7 +17,7 @@ const PointsListModule = (function () {
     function handlePointsListClick(item, e) {
         if (!item) return;
 
-        const ponto = PontosManager.getAllPontos().find(p => p.id === item.dataset.pontoId);
+        const ponto = (RecolhaManager?.getPontos?.() || []).find(p => String(p.id) === String(item.dataset.pontoId));
         if (!ponto) return;
 
         if (e.target.classList.contains('btn-details')) {
@@ -29,35 +28,27 @@ const PointsListModule = (function () {
 
         if (e.target.classList.contains('btn-show')) {
             e.stopPropagation();
-            MapModule.getMap().setView([ponto.lat, ponto.lng], 14);
-            return;
-        }
-
-        if (e.target.classList.contains('btn-remove')) {
-            e.stopPropagation();
-            PontosManager.removePonto(item.dataset.pontoId);
-            if (ponto.source === 'manual') PontosManager.saveManual();
-            renderPointsList();
+            // Garante foco mesmo quando estiver em cluster
+            RecolhaMarker?.focus?.(ponto, 16);
             return;
         }
 
         // Click no item = centrar no mapa
-        MapModule.getMap().setView([ponto.lat, ponto.lng], 14);
-        if (ponto.marker) ponto.marker.openPopup();
+        RecolhaMarker?.focus?.(ponto, 16);
     }
 
     function renderPointsList() {
         const container = document.getElementById('all-points-list');
         if (!container) return;
 
-        const pontosFiltrados = PontosManager.getPontosPorSource('manual');
+        const pontosFiltrados = RecolhaManager?.getPontos?.() || [];
         container.innerHTML = '';
         const s = pontosFiltrados.length === 1 ? '' : 's'
 
         container.appendChild(ModalRenderer.renderList(
             pontosFiltrados,
             renderPointItem,
-            `${pontosFiltrados.length} Ponto${s} Adicionado${s}`,
+            `${pontosFiltrados.length} Ponto${s} de Recolha`,
         ));
 
         ModalRenderer.delegateEvents(container, '.points-list-item', handlePointsListClick);

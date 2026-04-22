@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Administração - Pontos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/css/admin.css">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="mb-0">Pontos</h1>
+      <p class="text-muted mb-0">Criar, pesquisar e abrir pontos no mapa.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+      <a class="btn btn-primary" href="{{ url_for('admin.pontos_novo') }}">+ Novo ponto</a>
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'success' }} alert-dismissible fade show">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form class="row g-2 mb-3" method="get" action="{{ url_for('admin.pontos_manage') }}">
+    <div class="col-md-8">
+      <input class="form-control" type="text" name="q" value="{{ q }}" placeholder="Pesquisar por nome do ponto...">
+    </div>
+    <div class="col-md-4 d-flex gap-2">
+      <button class="btn btn-outline-primary" type="submit">Pesquisar</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('admin.pontos_manage') }}">Limpar</a>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Coordenadas</th>
+          <th>Atualizado</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in pontos %}
+          <tr>
+            <td>#{{ p['id'] }}</td>
+            <td>{{ p['nome'] or 'Ponto de Recolha' }}</td>
+            <td>
+              <code>{{ '%.6f'|format(p['lat']) }}, {{ '%.6f'|format(p['lng']) }}</code>
+            </td>
+            <td><small class="text-muted">{{ p['updated_at'] }}</small></td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-primary" href="/map/?focus={{ p['id'] }}" target="_blank">Ver no mapa</a>
+              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.edit_record', table_name='pontos', record_id=p['id']) }}">Editar</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
