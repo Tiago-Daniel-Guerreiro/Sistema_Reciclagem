@@ -1,0 +1,108 @@
+.messages-container {
+    margin-top: 30px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.message-alert {
+    padding: 15px;
+    border-radius: 8px;
+    background: #20c997;
+    color: black;
+    font-weight: bold;
+    margin-bottom: 15px;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.contacto-form-wrapper {
+    margin-top: 40px;
+}
+
+.contacto-form button,
+.btn {
+    margin-top: 25px;
+    width: 100%;
+    padding: 14px;
+    background: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.contacto-form button:hover,
+.btn:hover {
+    background: #22c55e;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.contacto-form button:disabled,
+.btn:disabled {
+    background: #6b7280;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.contacto-form button.loading::after {
+    content: "...";
+}
+
+/* Seção de outras formas de contacto */
+.contacto-other-section {
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.contacto-other-section h2 {
+    color: #20c997;
+    margin-bottom: 30px;
+    font-size: 32px;
+}
+
+.info-card a {
+    color: #20c997;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.info-card a:hover {
+    color: #17a589;
+    text-decoration: underline;
+}
+
+.contacto-form label.spaced {
+    margin-top: 15px;
+}
+
+@media (max-width: 768px) {
+    .messages-container {
+        max-width: calc(100% - 20px);
+    }
+
+    .contacto-form button,
+    .btn {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .contacto-other-section h2 {
+        font-size: 24px;
+    }
+}

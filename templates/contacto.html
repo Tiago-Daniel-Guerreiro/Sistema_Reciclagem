@@ -2,6 +2,10 @@
 
 {% block title %}Contacto - ReciclaTech{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="/css/contacto.css">
+{% endblock %}
+
 {% block content %}
 
 <main class="contacto">
@@ -14,48 +18,50 @@
 
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-    <div style="margin-top: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
+    <div class="messages-container">
         {% for category, message in messages %}
-        <div style="padding: 15px; border-radius: 8px; background:#20c997; color:black; font-weight: bold;">
-            ✓ {{ message }}
+        <div class="message-alert">
+            {{ message }}
         </div>
         {% endfor %}
     </div>
     {% endif %}
     {% endwith %}
 
-    <form action="/contacto" method="post" class="contacto-form" style="margin-top: 40px;">
+    <div class="contacto-form-wrapper">
+        <form action="/contacto" method="post" class="contacto-form">
 
-        <label for="nome">Nome completo</label>
-        <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+            <label for="nome">Nome completo</label>
+            <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
 
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="seu.email@exemplo.com" required>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="seu.email@exemplo.com" required>
 
-        <label for="assunto" style="margin-top: 15px;">Assunto</label>
-        <input type="text" id="assunto" name="assunto" placeholder="Tema da mensagem" required>
+            <label for="assunto" class="spaced">Assunto</label>
+            <input type="text" id="assunto" name="assunto" placeholder="Tema da mensagem" required>
 
-        <label for="mensagem" style="margin-top: 15px;">Mensagem</label>
-        <textarea id="mensagem" name="mensagem" rows="6" placeholder="Escreva sua mensagem aqui..." required></textarea>
+            <label for="mensagem" class="spaced">Mensagem</label>
+            <textarea id="mensagem" name="mensagem" rows="6" placeholder="Escreva sua mensagem aqui..." required></textarea>
 
-        <button type="submit" class="btn" style="margin-top: 25px; width: 100%; padding: 14px;">
-            Enviar
-        </button>
+            <button type="submit" class="btn">
+                Enviar
+            </button>
 
-    </form>
+        </form>
+    </div>
 
-    <section style="margin-top: 60px; padding-top: 40px; border-top: 2px solid rgba(255,255,255,0.1);">
-        <h2 style="color: #20c997; margin-bottom: 30px;">Outras Formas de Contacto</h2>
+    <section class="contacto-other-section">
+        <h2>Outras Formas de Contacto</h2>
         
         <div class="info-cards">
             <div class="info-card">
                 <h3>Email</h3>
-                <p><a href="mailto:info@reciclatech.pt" style="color: #20c997;">info@reciclatech.pt</a></p>
+                <p><a href="mailto:info@reciclatech.pt">info@reciclatech.pt</a></p>
             </div>
 
             <div class="info-card">
                 <h3>Telefone</h3>
-                <p><a href="tel:+351000000000" style="color: #20c997;">+351 xxx xxx xxx</a></p>
+                <p><a href="tel:+351000000000">+351 xxx xxx xxx</a></p>
             </div>
 
             <div class="info-card">
@@ -66,4 +72,5 @@
     </section>
 </main>
 
+<script src="/templates/js/contacto.js"></script>
 {% endblock %}

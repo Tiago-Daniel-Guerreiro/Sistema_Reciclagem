@@ -118,9 +118,22 @@ def verificar_email():
         confirmado = confirmar_email_por_codigo(email, codigo)
 
         if confirmado:
-            session.pop("email_pendente_verificacao", None)
-            flash("Email confirmado com sucesso! Já podes iniciar sessão.", "success")
-            return redirect(url_for("autenticar.login"))
+            # Após verificação, faz login automático
+            from database.sistema import obter_utilizador_por_email
+            user = obter_utilizador_por_email(email)
+            
+            if user:
+                session.pop("email_pendente_verificacao", None)
+                session['user_id'] = user['id']
+                session['nome'] = user['nome']
+                session['usuario_tipo'] = user['tipo']
+                session['user_email'] = email
+                
+                flash("Email confirmado com sucesso! Bem-vindo!", "success")
+                return redirect(url_for("home.home"))
+            else:
+                flash("Erro ao fazer login automático. Por favor, faz login manualmente.", "danger")
+                return redirect(url_for("autenticar.login"))
 
         flash("Código inválido, expirado ou não corresponde a este email.", "danger")
         return render_template("verificar_email.html", email_pendente=email)

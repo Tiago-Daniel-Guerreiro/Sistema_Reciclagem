@@ -75,7 +75,7 @@
                             {% endif %}
 
                             <small class="form-text text-muted">
-                                {% if col['type'] == 'TEXT' %}Texto{% elif col['type'] == 'INTEGER' %}Número inteiro{% elif col['type'] == 'REAL' %}Número decimal{% else %}{{ col['type'] }}{% endif %}
+                                {% if col['type'] == 'TEXT' %}Texto{% elif col['type'] == 'INTEGER' %}{% if col['name'] in ['tipo', 'receber_notificacoes', 'email_verificado', 'eletronico'] %}Bool{% else %}Número inteiro{% endif %}{% elif col['type'] == 'REAL' %}Número decimal{% else %}{{ col['type'] }}{% endif %}
                             </small>
                         </div>
                         {% endif %}

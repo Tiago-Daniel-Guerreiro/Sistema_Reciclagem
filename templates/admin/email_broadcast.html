@@ -60,7 +60,7 @@
                     <textarea class="form-control" id="conteudo_html" name="conteudo_html" rows="12" 
                               placeholder="Cole o HTML do email aqui. Use &#123;&#123;usuario&#125;&#125; para inserir o nome do utilizador" required></textarea>
                     <div class="form-text">
-                        Escreva o HTML do email aqui. Pode usar <code>{{usuario}}</code> para personalizá-lo com o nome de cada utilizador.
+                        Escreva o HTML do email aqui. Pode usar <code>{{ '{{' }}usuario{{ '}}' }}</code> para personalizá-lo com o nome de cada utilizador.
                     </div>
                 </div>
                 
@@ -139,7 +139,7 @@
             <h1>♻️ RECICLATECH</h1>
         </div>
         <div class="content">
-            <p>Olá <strong>{{usuario}}</strong>,</p>
+            <p>Olá <strong>{{ '{{' }}usuario{{ '}}' }}</strong>,</p>
             <p>Este é um email de teste. Modifique este conteúdo conforme necessário.</p>
         </div>
         <div class="footer">
@@ -177,7 +177,7 @@
             <h1>♻️ RECICLATECH</h1>
         </div>
         <div class="content">
-            <div class="greeting">Olá <strong>{{usuario}}</strong>,</div>
+            <div class="greeting">Olá <strong>{{ '{{' }}usuario{{ '}}' }}</strong>,</div>
             <div class="message">
                 <p>Temos boas notícias! Adicionar aqui o conteúdo da mensagem.</p>
             </div>

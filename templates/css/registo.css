@@ -1,0 +1,162 @@
+.registro-page {
+    font-family: 'Poppins', sans-serif;
+    background: #0b0b0b;
+    color: white;
+}
+
+.registro-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.registro-form {
+    background: #111;
+    padding: 30px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.registro-form h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 24px;
+    font-weight: 600;
+    color: white;
+}
+
+.registro-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #e0e0e0;
+}
+
+.registro-form input[type="text"],
+.registro-form input[type="email"],
+.registro-form input[type="password"],
+.registro-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 6px;
+    background: #1f2937;
+    color: white;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.registro-form input[type="text"]:focus,
+.registro-form input[type="email"]:focus,
+.registro-form input[type="password"]:focus,
+.registro-form select:focus {
+    outline: 2px solid #16a34a;
+    background: #2a3a47;
+}
+
+.registro-form input::placeholder {
+    color: #aaa;
+}
+
+.registro-form select {
+    cursor: pointer;
+}
+
+.registro-form select option {
+    background: #1f2937;
+    color: white;
+}
+
+.registro-checkbox-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.registro-checkbox-area input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #16a34a;
+}
+
+.registro-checkbox-area label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.registro-form button {
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #16a34a;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.registro-form button:hover {
+    background: #22c55e;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.registro-form button:disabled {
+    background: #6b7280;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.registro-messages {
+    margin-bottom: 16px;
+}
+
+.registro-message-item {
+    padding: 8px;
+    border-radius: 6px;
+    background: #1f2937;
+    color: white;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.registro-back-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #aaa;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.registro-back-link:hover {
+    color: #16a34a;
+    text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+    .registro-form {
+        padding: 20px;
+        width: calc(100% - 20px);
+    }
+
+    .registro-form h2 {
+        font-size: 20px;
+    }
+
+    .registro-form button {
+        padding: 10px;
+        font-size: 14px;
+    }
+}

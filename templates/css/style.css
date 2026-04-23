@@ -58,7 +58,7 @@ a {
 }
 
 .menu a::after {
-    content: "";
+    content: "-";
     position: absolute;
     left: 0;
     bottom: -5px;
@@ -509,7 +509,7 @@ a {
 }
 
 .lista li::before {
-    content: "✓ ";
+    content: "✓";
     color: #20c997;
     font-weight: bold;
     margin-right: 8px;
@@ -541,7 +541,7 @@ a {
 }
 
 .info-texto {
-    max-width: 400px;
+    max-width: 600px;
     text-align: left;
 }
 
@@ -592,12 +592,11 @@ a {
 
 .info-centro.destaque {
     background: rgba(30, 30, 30, 0.8);
-    border: 2px solid #20c997;
-    border-radius: 16px;
     padding: 40px;
     margin: 60px auto;
     max-width: 700px;
-    box-shadow: 0 8px 20px rgba(32, 201, 151, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border-radius: 16px;
 }
 
 .dados {
@@ -703,12 +702,11 @@ a {
     font-weight: 600;
 }
 
-.contacto-form input,
-.contacto-form textarea {
+.contacto-form input, .contacto-form textarea {
     padding: 12px;
     border-radius: 8px;
     border: none;
-    background: #1e1e1e;
+    background: #2d2d2d;
     color: white;
 }
 

@@ -1,10 +1,12 @@
 import smtplib
+import socket
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from dotenv import load_dotenv
 import sqlite3
 import os
+import time
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DOTENV_PATHS = [
@@ -21,6 +23,8 @@ EMAIL_REMETENTE = os.getenv("SMTP_USER", "")
 SENHA_APP = os.getenv("SMTP_PASS", "")
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_TIMEOUT = int(os.getenv("SMTP_TIMEOUT", "30"))  # Timeout em segundos
+SMTP_RETRIES = int(os.getenv("SMTP_RETRIES", "3"))   # Número de tentativas
 
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "../templates/emails")
 DB_PATH = os.path.join(os.path.dirname(__file__), "../banco.db")
@@ -59,17 +63,60 @@ def enviar_email(destinatario, assunto, template_nome=None, contexto=None, corpo
 
         msg.attach(MIMEText(corpo_html, 'html'))
 
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.starttls()
-            server.login(EMAIL_REMETENTE, SENHA_APP)
-            server.send_message(msg)
+        # Tentar enviar com retry
+        for tentativa in range(1, SMTP_RETRIES + 1):
+            try:
+                print(f"[EmailService] Tentativa {tentativa}/{SMTP_RETRIES} para enviar para {destinatario}")
+                
+                # Usar socket.setdefaulttimeout para aplicar timeout a todo o processo
+                socket.setdefaulttimeout(SMTP_TIMEOUT)
+                
+                with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=SMTP_TIMEOUT) as server:
+                    server.starttls()
+                    server.login(EMAIL_REMETENTE, SENHA_APP)
+                    server.send_message(msg)
 
-        print(f"Email enviado para {destinatario}")
-        return True
+                print(f"[EmailService] Email enviado com sucesso para {destinatario}")
+                return True
 
-    except Exception as e:
-        print(f"Erro ao enviar email para {destinatario}: {e}")
+            except (smtplib.SMTPException, socket.timeout, socket.error, ConnectionError, TimeoutError) as e:
+                print(f"[EmailService] Tentativa {tentativa} falhou: {e}")
+                
+                if tentativa < SMTP_RETRIES:
+                    # Aguardar antes de tentar novamente (backoff exponencial)
+                    espera = 2 ** (tentativa - 1)
+                    print(f"[EmailService] Aguardando {espera}s antes da próxima tentativa...")
+                    time.sleep(espera)
+                else:
+                    raise  # Levantar exceção na última tentativa
+
         return False
+
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"[EmailService] Erro de autenticação SMTP: {e}")
+        print("[EmailService] Verifique as credenciais SMTP_USER e SMTP_PASS no .env")
+        return False
+        
+    except smtplib.SMTPException as e:
+        print(f"[EmailService] Erro SMTP: {e}")
+        return False
+        
+    except socket.timeout:
+        print(f"[EmailService] Timeout ao conectar em {SMTP_HOST}:{SMTP_PORT} (timeout={SMTP_TIMEOUT}s)")
+        print("[EmailService] Possíveis causas: firewall bloqueando, servidor SMTP indisponível")
+        return False
+        
+    except (ConnectionError, TimeoutError) as e:
+        print(f"[EmailService] Erro de conexão: {e}")
+        print(f"[EmailService] Verifique se consegue alcançar {SMTP_HOST}:{SMTP_PORT}")
+        return False
+        
+    except Exception as e:
+        print(f"[EmailService] Erro inesperado ao enviar email para {destinatario}: {e}")
+        return False
+    finally:
+        # Resetar timeout para o padrão
+        socket.setdefaulttimeout(None)
 
 
 def enviar_email_verificacao(destinatario, nome, codigo_verificacao):

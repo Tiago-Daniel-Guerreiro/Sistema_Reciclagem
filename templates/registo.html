@@ -3,99 +3,55 @@
 {% block title %}Registo - ReciclaTech{% endblock %}
 
 {% block extra_css %}
-<style>
+<link rel="stylesheet" href="/css/registo.css">
+{% endblock %}
 
-body{
-    font-family:'Poppins',sans-serif;
-    background:#0b0b0b;
-    color:white;
-    margin:0;
-}
+{% block content %}
+<div class="registro-page">
+    <div class="registro-form-container">
+        <form action="/registo" method="post" class="registro-form">
+            <h2>Registo</h2>
 
-.form-container{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="registro-messages">
+                {% for category, message in messages %}
+                <p class="registro-message-item">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
 
-form{
-    background:#111;
-    padding:30px;
-    border-radius:10px;
-    width:400px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.5);
-}
+            <label for="nome">Nome completo</label>
+            <input type="text" id="nome" name="nome" placeholder="Seu nome completo" required>
 
-form h2{
-    text-align:center;
-    margin-bottom:25px;
-}
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="seu.email@exemplo.com" required>
 
-label{
-    display:block;
-    margin-bottom:6px;
-    font-weight:500;
-}
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" name="senha" placeholder="Mínimo 8 caracteres" required>
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-select{
-    width:100%;
-    padding:10px;
-    margin-bottom:15px;
-    border:none;
-    border-radius:6px;
-    background:#1f2937;
-    color:white;
-}
+            <label for="confirmarSenha">Confirmar Senha</label>
+            <input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="Confirme sua senha" required>
 
-input::placeholder{
-    color:#aaa;
-}
+            <div class="registro-checkbox-area">
+                <input type="checkbox" id="receiveemails" name="receiveemails">
+                <label for="receiveemails">Desejo receber emails com notificações e novidades</label>
+            </div>
 
-select{
-    cursor:pointer;
-}
+            <button type="submit">Criar Conta</button>
 
-.checkbox-area{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:20px;
-}
+            <a href="/login" class="registro-back-link">
+                Já tenho conta
+            </a>
 
-.checkbox-area input{
-    width:18px;
-    height:18px;
-}
-
-button{
-    padding:12px;
-    border:none;
-    border-radius:6px;
-    background:#16a34a;
-    color:white;
-    cursor:pointer;
-    font-size:16px;
-}
-
-button:hover{
-    background:#22c55e;
-}
-
-.back-link{
-    display:block;
-    text-align:center;
-    margin-top:15px;
-    color:#aaa;
-    text-decoration:none;
-}
-
-.back-link:hover{
-    color:#16a34a;
-}
+            <a href="/" class="registro-back-link">
+                ← Voltar para o início
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}
 
 </style>
 {% endblock %}

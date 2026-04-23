@@ -112,6 +112,26 @@ def verificar_login(email, senha_input):
     return None
 
 
+def obter_utilizador_por_email(email):
+    db = get_db_manager()
+    try:
+        with db.connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT id, nome, tipo, email, email_verificado
+                FROM utilizadores
+                WHERE email = ?
+                """,
+                (email,)
+            )
+            user = cursor.fetchone()
+            return dict(user) if user else None
+    except Exception as e:
+        print(f"Erro ao obter utilizador: {e}")
+        return None
+
+
 def confirmar_email_por_codigo(email, codigo):
     db = get_db_manager()
     try:
