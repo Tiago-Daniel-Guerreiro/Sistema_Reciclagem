@@ -67,6 +67,43 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Fontes de Dados</h5>
+                    <h2>{{ stats.fontes }}</h2>
+                    <a href="{{ url_for('admin.list_table', table_name='fontes') }}" class="btn btn-outline-dark btn-sm mt-2">Gerenciar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h2 class="mb-4">Ferramentas</h2>
+        </div>
+    </div>
+    <div class="row mb-5">
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Enviar Email</h5>
+                    <p class="card-text">Enviar emails HTML personalizados para todos os utilizadores</p>
+                    <a href="{{ url_for('admin.email_broadcast') }}" class="btn btn-light btn-sm">Enviar Email</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Histórico de Emails</h5>
+                    <p class="card-text">Consultar histórico de emails enviados via broadcast</p>
+                    <a href="{{ url_for('admin.email_history') }}" class="btn btn-dark btn-sm">Ver Histórico</a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row mt-5">

@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Enviar Email{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/css/admin.css">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="mb-3">Enviar Email para Utilizadores</h2>
+            <p class="text-muted">Envie um email HTML personalizado para todos os utilizadores da plataforma</p>
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'warning' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" class="needs-validation" novalidate>
+                <!-- Opção de destinatários -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Enviar Para:</strong></label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="enviar_para" id="todos" value="todos" checked>
+                        <label class="form-check-label" for="todos">
+                            Todos os utilizadores com email verificado
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="enviar_para" id="notificacoes" value="notificacoes">
+                        <label class="form-check-label" for="notificacoes">
+                            Apenas utilizadores que desejam receber notificações
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Assunto -->
+                <div class="mb-3">
+                    <label for="assunto" class="form-label"><strong>Assunto do Email:</strong></label>
+                    <input type="text" class="form-control" id="assunto" name="assunto" 
+                           placeholder="ex: Novidades ReciclaTech" required>
+                    <div class="form-text">O assunto será usado como título do email</div>
+                </div>
+                
+                <!-- Conteúdo HTML -->
+                <div class="mb-3">
+                    <label for="conteudo_html" class="form-label"><strong>Conteúdo HTML:</strong></label>
+                    <textarea class="form-control" id="conteudo_html" name="conteudo_html" rows="12" 
+                              placeholder="Cole o HTML do email aqui. Use &#123;&#123;usuario&#125;&#125; para inserir o nome do utilizador" required></textarea>
+                    <div class="form-text">
+                        Escreva o HTML do email aqui. Pode usar <code>{{usuario}}</code> para personalizá-lo com o nome de cada utilizador.
+                    </div>
+                </div>
+                
+                <!-- Editor rápido de template -->
+                <div class="card bg-light mb-3">
+                    <div class="card-header">
+                        <strong>Template Rápido</strong>
+                    </div>
+                    <div class="card-body">
+                        <p>Clique num botão abaixo para inserir um template pré-formatado:</p>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="inserirTemplateSimples()">
+                            Template Simples
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-info" onclick="inserirTemplateFormatado()">
+                            Template Formatado
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Preview -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <strong>Preview</strong>
+                    </div>
+                    <div class="card-body" id="preview" style="background-color: #f9f9f9; border-radius: 4px; min-height: 200px;">
+                        <p class="text-muted">A pré-visualização aparecerá aqui conforme digita...</p>
+                    </div>
+                </div>
+                
+                <!-- Botões -->
+                <div class="mb-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-success btn-lg" onclick="return confirm('Tem a certeza que deseja enviar este email para todos os utilizadores?')">
+                        <i class="bi bi-send"></i> Enviar Email
+                    </button>
+                    <a href="/admin/" class="btn btn-secondary btn-lg">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Link para histórico -->
+    <div class="mt-4">
+        <a href="/admin/email-history" class="btn btn-outline-secondary">
+            Ver Histórico de Emails
+        </a>
+    </div>
+</div>
+
+<script>
+    const textarea = document.getElementById('conteudo_html');
+    const preview = document.getElementById('preview');
+    
+    // Atualizar preview em tempo real
+    textarea.addEventListener('input', function() {
+        let html = this.value;
+        // Escape algumas tags perigosas
+        preview.innerHTML = html;
+    });
+    
+    function inserirTemplateSimples() {
+        const template = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; }
+        .header { color: #0f5132; border-bottom: 3px solid #20c997; padding-bottom: 15px; margin-bottom: 20px; }
+        .content { color: #333; line-height: 1.6; }
+        .footer { color: #999; font-size: 12px; border-top: 1px solid #e0e0e0; padding-top: 15px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>♻️ RECICLATECH</h1>
+        </div>
+        <div class="content">
+            <p>Olá <strong>{{usuario}}</strong>,</p>
+            <p>Este é um email de teste. Modifique este conteúdo conforme necessário.</p>
+        </div>
+        <div class="footer">
+            <p>© 2026 ReciclaTech - Todos os direitos reservados</p>
+        </div>
+    </div>
+</body>
+</html>`;
+        textarea.value = template;
+        textarea.dispatchEvent(new Event('input'));
+    }
+    
+    function inserirTemplateFormatado() {
+        const template = `<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', Arial, sans-serif; background-color: #f5f5f5; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(90deg, #0f5132, #146c43); color: white; padding: 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+        .content { padding: 30px; }
+        .greeting { font-size: 16px; color: #333; margin-bottom: 20px; }
+        .message { color: #666; line-height: 1.6; margin: 20px 0; }
+        .cta-button { display: inline-block; background-color: #20c997; color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 20px 0; }
+        .footer { background-color: #f9f9f9; padding: 20px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #e0e0e0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>♻️ RECICLATECH</h1>
+        </div>
+        <div class="content">
+            <div class="greeting">Olá <strong>{{usuario}}</strong>,</div>
+            <div class="message">
+                <p>Temos boas notícias! Adicionar aqui o conteúdo da mensagem.</p>
+            </div>
+            <div style="text-align: center;">
+                <a href="https://reciclat.tech/" class="cta-button">Visitar ReciclaTech</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p><strong>ReciclaTech</strong> © 2026</p>
+            <p>Ajudando a tornar o mundo mais sustentável ♻️</p>
+        </div>
+    </div>
+</body>
+</html>`;
+        textarea.value = template;
+        textarea.dispatchEvent(new Event('input'));
+    }
+</script>
+{% endblock %}

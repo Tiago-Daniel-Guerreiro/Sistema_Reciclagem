@@ -121,6 +121,19 @@ a {
     color: #ff8787;
 }
 
+.user-account {
+    color: #20c997;
+    font-size: 18px;
+    font-weight: 600;
+    transition: 0.3s;
+    padding: 6px 10px;
+}
+
+.user-account:hover {
+    color: #17a589;
+    transform: rotate(20deg);
+}
+
 .verificar {
     background-color: #ffc107;
     color: black;

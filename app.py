@@ -21,6 +21,7 @@ from core.config import ServerConfig
 from core.database import DatabaseManager
 from core.sync_service import WeeklySyncService
 from core.cache_manager import CacheManager
+from core.scheduled_tasks import task_manager
 
 
 def create_app(fast_mode: bool = False) -> Flask:
@@ -41,6 +42,10 @@ def create_app(fast_mode: bool = False) -> Flask:
     app.config["DB_MANAGER"] = db
     app.config["SYNC_SERVICE"] = sync_service
     app.config["CACHE_MANAGER"] = cache_manager
+    
+    # Iniciar o gestor de tarefas agendadas (verifica pontos alterados)
+    task_manager.iniciar()
+    print("[App] Gestor de tarefas agendadas iniciado", flush=True)
 
     # Registra blueprints de autenticação
     app.register_blueprint(home_route)

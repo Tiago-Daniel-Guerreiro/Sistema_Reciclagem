@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(90deg, #0f5132, #146c43);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .message {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .pontos-container {
+            background-color: #f9f9f9;
+            border-left: 4px solid #20c997;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .ponto-item {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        .ponto-item:last-child {
+            margin-bottom: 0;
+        }
+        .ponto-item:hover {
+            box-shadow: 0 2px 8px rgba(32, 201, 151, 0.2);
+            border-color: #20c997;
+        }
+        .ponto-nome {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f5132;
+            margin-bottom: 8px;
+        }
+        .ponto-info {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0;
+        }
+        .ponto-info strong {
+            color: #333;
+        }
+        .stats {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .stats-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f5132;
+        }
+        .stats-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #20c997;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+        .cta-button:hover {
+            background-color: #17a589;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #e0e0e0;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>♻️ RECICLATECH</h1>
+            <p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Notificação de Pontos Atualizados</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Olá <strong>{{ usuario }}</strong>,
+            </div>
+            
+            <div class="message">
+                Temos boas notícias! {{ total_pontos }} ponto(s) de recolha foi/foram atualizado(s) no nosso sistema nas últimas 24 horas.
+            </div>
+            
+            <div class="stats">
+                <div class="stats-number">{{ total_pontos }}</div>
+                <div class="stats-label">Ponto(s) Alterado(s)</div>
+            </div>
+            
+            <div class="pontos-container">
+                <h3 style="margin: 0 0 15px 0; color: #0f5132; font-size: 16px;">Detalhes dos Pontos:</h3>
+                {% for ponto in pontos %}
+                    <div class="ponto-item">
+                        <div class="ponto-nome">{{ ponto['nome'] }}</div>
+                        <div class="ponto-info">
+                            <strong>Localização:</strong> {{ ponto['localizacao'] or 'Não especificada' }}
+                        </div>
+                        {% if ponto['descricao'] %}
+                            <div class="ponto-info">
+                                <strong>Descrição:</strong> {{ ponto['descricao'][:100] }}{% if ponto['descricao']|length > 100 %}...{% endif %}
+                            </div>
+                        {% endif %}
+                        <div class="ponto-info">
+                            <strong>Coordenadas:</strong> {{ "%.4f"|format(ponto['latitude']) }}, {{ "%.4f"|format(ponto['longitude']) }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="https://reciclat.tech/mapa/" class="cta-button">Ver Mapa Interativo</a>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="message" style="font-size: 14px; color: #999;">
+                Recebeste este email porque marcaste que desejas receber notificações sobre atualizações de pontos de recolha. 
+                Se não desejas mais receber estes emails, podes alterar as tuas preferências na tua conta.
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>ReciclaTech</strong> © 2026 - Todos os direitos reservados</p>
+            <p>Ajudando a tornar o mundo mais sustentável ♻️</p>
+        </div>
+    </div>
+</body>
+</html>

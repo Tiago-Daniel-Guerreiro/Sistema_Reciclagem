@@ -12,6 +12,7 @@
     <header class="header">
         <a href="/" class="logo">RECICLATECH ♻️</a>
         <button class="menu-toggle" id="menu-toggle">
+            <!-- Cada span é uma linha do "icon" de menu-->
             <span></span>
             <span></span>
             <span></span>
@@ -23,7 +24,6 @@
             <a href="/dados" {% if request.path == '/dados' %}class="ativo"{% endif %}>DADOS</a>
             <a href="/contacto" {% if request.path == '/contacto' %}class="ativo"{% endif %}>CONTACTO</a>
             
-            <!-- Auth dentro da sidebar em responsivo -->
             <div class="auth-menu">
                 {% if session.get('user_id') %}
                     <!-- Autenticado -->
@@ -33,7 +33,7 @@
                     {% if session.get('usuario_tipo') == 1 or session.get('admin') %}
                         <a href="/admin/" class="admin" title="Painel de Admin">ADMIN</a>
                     {% endif %}
-                    <span class="user-info">{{ session.get('user_email') or 'Utilizador' }}</span>
+                    <a href="/conta" class="user-info" title="Minha Conta">{{ session.get('user_email') or 'Utilizador' }}</a>
                     <a href="/logout" class="logout">LOGOUT</a>
                 {% else %}
                     <!-- Não autenticado -->
@@ -42,7 +42,6 @@
                 {% endif %}
             </div>
         </nav>
-        <!-- Auth fixa no header em desktop -->
         <div class="auth" id="auth-area">
             {% if session.get('user_id') %}
                 <!-- Autenticado -->
@@ -52,7 +51,7 @@
                 {% if session.get('usuario_tipo') == 1 or session.get('admin') %}
                     <a href="/admin/" class="admin" title="Painel de Admin">ADMIN</a>
                 {% endif %}
-                <span class="user-info">{{ session.get('user_email') or 'Utilizador' }}</span>
+                <a href="/conta" class="user-info" title="Minha Conta">{{ session.get('user_email') or 'Utilizador' }}</a>
                 <a href="/logout" class="logout">LOGOUT</a>
             {% else %}
                 <!-- Não autenticado -->

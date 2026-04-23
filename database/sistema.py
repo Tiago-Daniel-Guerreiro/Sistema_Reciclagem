@@ -1,7 +1,7 @@
 import secrets
 import string
 from datetime import datetime, timedelta
-from seguranca import encrypt_password, decrypt_password
+from seguranca import encrypt_password, decrypt_password, verify_password
 from routes.email_service import enviar_email_verificacao
 from core.config import ServerConfig
 from core.database import DatabaseManager
@@ -39,29 +39,30 @@ def registrar_usuario(nome, email, senha, receber_notificacoes):
     try:
         with db.connection() as conn:
             cursor = conn.cursor()
-            
-            # Inserir utilizador
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO utilizadores
                 (nome, email, password_hash, tipo, receber_notificacoes)
                 VALUES (?, ?, ?, ?, ?)
-            """, (nome, email, senha_cript, 0, receber))  # tipo 0 = utilizador
-            
+                """,
+                (nome, email, senha_cript, 0, receber)
+            )
             usuario_id = cursor.lastrowid
-            
-            # Inserir código de verificação
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO verificacao_email
                 (utilizador_id, codigo, criado_em)
                 VALUES (?, ?, ?)
-            """, (usuario_id, codigo_verificacao, agora))
+                """,
+                (usuario_id, codigo_verificacao, agora)
+            )
 
         email_enviado = enviar_email_verificacao(email, nome, codigo_verificacao)
         if not email_enviado:
             print(f"[REGISTO] Falha ao enviar email de verificação para {email}.")
             return {"sucesso": False, "erro": "email_nao_enviado"}
 
-        print(f"[REGISTO] Utilizador {nome} ({email}) registado com sucesso. Código enviado.")
+        print(f"[REGISTO] Utilizador {nome} ({email}) registado com sucesso.")
         return {"sucesso": True, "user_id": usuario_id}
 
     except Exception as e:
@@ -73,78 +74,70 @@ def registrar_usuario(nome, email, senha, receber_notificacoes):
 
 def verificar_login(email, senha_input):
     db = get_db_manager()
-
     try:
         with db.connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
-                SELECT u.id, u.nome, u.password_hash, u.tipo, u.email_verificado, ve.codigo
+            cursor.execute(
+                """
+                SELECT u.id, u.nome, u.password_hash, u.tipo, u.email_verificado,
+                       ve.codigo, ve.criado_em
                 FROM utilizadores u
                 LEFT JOIN verificacao_email ve ON u.id = ve.utilizador_id
                 WHERE u.email = ?
-            """, (email,))
+                """,
+                (email,)
+            )
             user = cursor.fetchone()
 
-            if user:
-                # Se email não verificado
-                if user["email_verificado"] == 0:
-                    if user["codigo"]:  # Tem código pendente
-                        tempo_criacao = datetime.fromisoformat(user["codigo"])
-                        if datetime.now() - tempo_criacao > timedelta(hours=24):
-                            return {"erro": "codigo_expirado"}
-                    return {"erro": "email_nao_verificado"}
+            if not user:
+                return None
+            
+            if user["email_verificado"] == 0:
+                if user["criado_em"]:
+                    tempo_criacao = datetime.fromisoformat(user["criado_em"])
+                    if datetime.now() - tempo_criacao > timedelta(hours=24):
+                        return {"erro": "codigo_expirado"}
+                return {"erro": "email_nao_verificado"}
 
-                senha_bd = decrypt_password(user["password_hash"])
-
-                if senha_input == senha_bd:
-                    return {
-                        "id": user["id"],
-                        "nome": user["nome"],
-                        "tipo": user["tipo"],  # 0 = utilizador, 1 = admin
-                        "email": email
-                    }
-
+            if verify_password(senha_input, user["password_hash"]):
+                return {
+                    "id": user["id"],
+                    "nome": user["nome"],
+                    "tipo": user["tipo"],
+                    "email": email
+                }
     except Exception as e:
         print(f"Erro ao verificar login: {e}")
-
+    
     return None
 
 
 def confirmar_email_por_codigo(email, codigo):
     db = get_db_manager()
-
     try:
         with db.connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT u.id, u.email_verificado, ve.codigo, ve.criado_em
                 FROM utilizadores u
                 LEFT JOIN verificacao_email ve ON u.id = ve.utilizador_id
                 WHERE u.email = ?
-            """, (email,))
+                """,
+                (email,)
+            )
             user = cursor.fetchone()
 
             if not user or not user["codigo"] or user["codigo"].upper() != codigo.upper():
                 return False
 
-            # Verificar se código expirou
             if user["criado_em"]:
                 tempo_criacao = datetime.fromisoformat(user["criado_em"])
                 if datetime.now() - tempo_criacao > timedelta(hours=24):
                     return False
 
-            # Marcar email como verificado e limpar código
-            cursor.execute("""
-                UPDATE utilizadores
-                SET email_verificado = 1
-                WHERE id = ?
-            """, (user["id"],))
-            
-            cursor.execute("""
-                DELETE FROM verificacao_email
-                WHERE utilizador_id = ?
-            """, (user["id"],))
-
+            cursor.execute("UPDATE utilizadores SET email_verificado = 1 WHERE id = ?", (user["id"],))
+            cursor.execute("DELETE FROM verificacao_email WHERE utilizador_id = ?", (user["id"],))
             return cursor.rowcount > 0
 
     except Exception as e:
@@ -154,18 +147,18 @@ def confirmar_email_por_codigo(email, codigo):
 
 def confirmar_email_por_token(token):
     db = get_db_manager()
-
     try:
         with db.connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE utilizadores
                 SET codigo_verificacao = NULL, codigo_verificacao_criado_em = NULL, email_verificado = 1
                 WHERE codigo_verificacao = ?
-            """, (token,))
-
+                """,
+                (token,)
+            )
         return cursor.rowcount > 0
-
     except Exception as e:
         print(f"Erro ao confirmar email: {e}")
         return False
@@ -173,19 +166,20 @@ def confirmar_email_por_token(token):
 
 def reenviar_codigo(email):
     db = get_db_manager()
-    
     novo_codigo = gerar_codigo()
     agora = datetime.now().isoformat()
 
     try:
         with db.connection() as conn:
             cursor = conn.cursor()
-            
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT u.id, u.nome, u.email_verificado
                 FROM utilizadores u
                 WHERE u.email = ?
-            """, (email,))
+                """,
+                (email,)
+            )
             user = cursor.fetchone()
 
             if not user:
@@ -194,19 +188,14 @@ def reenviar_codigo(email):
             if user["email_verificado"] == 1:
                 return {"sucesso": False, "erro": "email_ja_verificado"}
 
-            # Atualizar ou criar código de verificação
-            cursor.execute("""
-                UPDATE verificacao_email
-                SET codigo = ?, criado_em = ?
-                WHERE utilizador_id = ?
-            """, (novo_codigo, agora, user["id"]))
-            
-            if cursor.rowcount == 0:
-                cursor.execute("""
-                    INSERT INTO verificacao_email
-                    (utilizador_id, codigo, criado_em)
-                    VALUES (?, ?, ?)
-                """, (user["id"], novo_codigo, agora))
+            cursor.execute(
+                """
+                INSERT OR REPLACE INTO verificacao_email
+                (utilizador_id, codigo, criado_em)
+                VALUES (?, ?, ?)
+                """,
+                (user["id"], novo_codigo, agora)
+            )
 
             email_enviado = enviar_email_verificacao(email, user["nome"], novo_codigo)
             if not email_enviado:
@@ -222,18 +211,18 @@ def reenviar_codigo(email):
 
 def solicitar_reset_senha(email):
     from routes.email_service import enviar_email_reset_senha
-    
     db = get_db_manager()
     
     try:
         with db.connection() as conn:
             cursor = conn.cursor()
-            
-            # Procurar utilizador verificado
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT id, nome FROM utilizadores
                 WHERE email = ? AND email_verificado = 1
-            """, (email,))
+                """,
+                (email,)
+            )
             user = cursor.fetchone()
 
             if not user:
@@ -241,15 +230,15 @@ def solicitar_reset_senha(email):
 
             codigo_reset = gerar_codigo()
             agora = datetime.now().isoformat()
-            
-            # Inserir código de reset
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO reset_senha
                 (utilizador_id, codigo, criado_em)
                 VALUES (?, ?, ?)
-            """, (user["id"], codigo_reset, agora))
+                """,
+                (user["id"], codigo_reset, agora)
+            )
 
-            # Enviar email
             email_enviado = enviar_email_reset_senha(email, user["nome"], codigo_reset)
             if not email_enviado:
                 return {"sucesso": False, "erro": "email_nao_enviado"}
@@ -267,38 +256,27 @@ def reset_senha_com_codigo(email, codigo, nova_senha):
     try:
         with db.connection() as conn:
             cursor = conn.cursor()
-            
-            # Procurar utilizador e código
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT u.id, rs.id as reset_id, rs.criado_em
                 FROM utilizadores u
                 JOIN reset_senha rs ON u.id = rs.utilizador_id
                 WHERE u.email = ? AND rs.codigo = ? AND rs.utilizado = 0
-            """, (email, codigo))
+                """,
+                (email, codigo)
+            )
             result = cursor.fetchone()
 
             if not result:
                 return {"sucesso": False, "erro": "codigo_invalido"}
 
-            # Verificar se código expirou (24 horas)
             tempo_criacao = datetime.fromisoformat(result["criado_em"])
             if datetime.now() - tempo_criacao > timedelta(hours=24):
                 return {"sucesso": False, "erro": "codigo_expirado"}
 
-            # Atualizar senha
             nova_senha_cript = encrypt_password(nova_senha)
-            cursor.execute("""
-                UPDATE utilizadores
-                SET password_hash = ?
-                WHERE id = ?
-            """, (nova_senha_cript, result["id"]))
-            
-            # Marcar código como utilizado
-            cursor.execute("""
-                UPDATE reset_senha
-                SET utilizado = 1
-                WHERE id = ?
-            """, (result["reset_id"],))
+            cursor.execute("UPDATE utilizadores SET password_hash = ? WHERE id = ?", (nova_senha_cript, result["id"]))
+            cursor.execute("UPDATE reset_senha SET utilizado = 1 WHERE id = ?", (result["reset_id"],))
 
             return {"sucesso": True}
 
@@ -320,22 +298,19 @@ def criar_admin_se_nao_existir():
         with db.connection() as conn:
             cursor = conn.cursor()
             
-            # Verificar se admin já existe
-            cursor.execute("""
-                SELECT id FROM utilizadores WHERE tipo = 1
-            """)
-            
-            if cursor.fetchone():
+            if cursor.execute("SELECT id FROM utilizadores WHERE tipo = 1").fetchone():
                 print("[Sistema] Admin já existe, pulando inicialização.")
                 return False
             
-            # Criar admin
             admin_pass_cript = encrypt_password(admin_password)
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO utilizadores
                 (nome, email, password_hash, tipo, receber_notificacoes, email_verificado)
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, ("Administrador", admin_email, admin_pass_cript, 1, 1, 1))  # tipo 1 = admin
+                """,
+                ("Administrador", admin_email, admin_pass_cript, 1, 1, 1)
+            )
             
             print(f"[Sistema] Admin criado com sucesso! Email: {admin_email}")
             return True

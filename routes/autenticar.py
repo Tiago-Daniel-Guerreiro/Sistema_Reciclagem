@@ -219,3 +219,104 @@ def reenviar_codigo_route():
         return jsonify({"sucesso": False, "erro": "email_ja_verificado"}), 409
     
     return jsonify({"sucesso": False, "erro": resultado.get("erro")}), 500
+
+
+@autenticar_route.route('/conta', methods=['GET', 'POST'])
+def conta():
+    """Página de conta do utilizador"""
+    if 'user_id' not in session:
+        flash("Você precisa estar autenticado.", "danger")
+        return redirect(url_for('autenticar.login'))
+    
+    import sqlite3
+    from core.config import ServerConfig
+    from seguranca import encrypt_password, verify_password
+    
+    config = ServerConfig()
+    conn = sqlite3.connect(config.db_path)
+    conn.row_factory = sqlite3.Row
+    
+    if request.method == 'POST':
+        try:
+            user_id = session['user_id']
+            nome = request.form.get('nome', '').strip()
+            email = request.form.get('email', '').strip()
+            senha_atual = request.form.get('senha_atual', '').strip()
+            senha_nova = request.form.get('senha_nova', '').strip()
+            receber_notificacoes = bool(request.form.get('receber_notificacoes'))
+            
+            # Buscar utilizador atual
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM utilizadores WHERE id = ?", (user_id,))
+            utilizador = cursor.fetchone()
+            
+            if not utilizador:
+                flash("Utilizador não encontrado.", "danger")
+                return redirect(url_for('autenticar.conta'))
+            
+            # Se quer mudar a senha, verificar a senha atual
+            if senha_nova:
+                if not senha_atual:
+                    flash("Insira a sua senha atual para mudar a senha.", "danger")
+                    return render_template('conta.html', utilizador=dict(utilizador))
+                
+                if not verify_password(senha_atual, utilizador['password_hash']):
+                    flash("Senha atual incorreta.", "danger")
+                    return render_template('conta.html', utilizador=dict(utilizador))
+            
+            # Validar email se foi alterado
+            if email != utilizador['email']:
+                cursor.execute("SELECT id FROM utilizadores WHERE email = ? AND id != ?", (email, user_id))
+                if cursor.fetchone():
+                    flash("Este email já está registado por outro utilizador.", "danger")
+                    return render_template('conta.html', utilizador=dict(utilizador))
+            
+            # Atualizar dados
+            updates = []
+            params = []
+            
+            if nome:
+                updates.append("nome = ?")
+                params.append(nome)
+            
+            if email:
+                updates.append("email = ?")
+                params.append(email)
+            
+            if senha_nova:
+                updates.append("password_hash = ?")
+                params.append(encrypt_password(senha_nova))
+            
+            updates.append("receber_notificacoes = ?")
+            params.append(1 if receber_notificacoes else 0)
+            
+            params.append(user_id)
+            
+            cursor.execute(f"UPDATE utilizadores SET {', '.join(updates)} WHERE id = ?", params)
+            conn.commit()
+            
+            # Atualizar sessão
+            if nome:
+                session['nome'] = nome
+            if email:
+                session['user_email'] = email
+            
+            flash("Conta atualizada com sucesso!", "success")
+            return redirect(url_for('autenticar.conta'))
+            
+        except Exception as e:
+            flash(f"Erro ao atualizar conta: {str(e)}", "danger")
+        finally:
+            conn.close()
+    
+    # GET - Mostrar página
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM utilizadores WHERE id = ?", (session['user_id'],))
+    utilizador = cursor.fetchone()
+    conn.close()
+    
+    if not utilizador:
+        flash("Utilizador não encontrado.", "danger")
+        return redirect(url_for('home.home'))
+    
+    return render_template('conta.html', utilizador=dict(utilizador))

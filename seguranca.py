@@ -44,3 +44,11 @@ def decrypt_password(encrypted_password: str) -> str:
         return plain.decode("utf-8")
 
     return LEGACY_CIPHER.decrypt(encrypted_password.encode("utf-8")).decode("utf-8")
+
+
+def verify_password(plain_password: str, encrypted_password: str) -> bool:
+    try:
+        decrypted = decrypt_password(encrypted_password)
+        return plain_password == decrypted
+    except Exception:
+        return False

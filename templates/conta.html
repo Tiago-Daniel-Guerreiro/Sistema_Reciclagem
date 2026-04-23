@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Minha Conta - ReciclaTech{% endblock %}
+
+{% block extra_css %}
+<style>
+    .conta-container {
+        max-width: 500px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+    
+    .card {
+        border: 1px solid rgba(32, 201, 151, 0.2);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+        background: linear-gradient(90deg, #0f5132, #146c43);
+        color: white;
+        border: none;
+    }
+    
+    .form-control:focus {
+        border-color: #20c997;
+        box-shadow: 0 0 0 0.2rem rgba(32, 201, 151, 0.25);
+    }
+    
+    .btn-success {
+        background-color: #20c997;
+        border-color: #20c997;
+    }
+    
+    .btn-success:hover {
+        background-color: #17a589;
+        border-color: #17a589;
+    }
+    
+    .divider {
+        margin: 30px 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .section-title {
+        color: #0f5132;
+        font-weight: 600;
+        margin-top: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .form-check {
+        padding: 10px 0;
+    }
+    
+    .form-check-label {
+        margin-left: 5px;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="conta-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'warning' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">Minha Conta</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" class="needs-validation" novalidate>
+                <h5 class="section-title">Informações Pessoais</h5>
+                
+                <div class="mb-3">
+                    <label for="nome" class="form-label">Nome:</label>
+                    <input type="text" class="form-control" id="nome" name="nome" 
+                           value="{{ utilizador.nome }}" required>
+                    <div class="form-text">O seu nome completo</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" class="form-control" id="email" name="email" 
+                           value="{{ utilizador.email }}" required>
+                    <div class="form-text">
+                        {% if utilizador.email_verificado == 1 %}
+                            <span class="badge bg-success">Email verificado</span>
+                        {% else %}
+                            <span class="badge bg-warning">Email não verificado</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Segurança -->
+                <h5 class="section-title">Segurança</h5>
+                
+                <div class="mb-3">
+                    <label for="senha_atual" class="form-label">Senha Atual:</label>
+                    <input type="password" class="form-control" id="senha_atual" name="senha_atual" 
+                           placeholder="Deixe em branco se não quer alterar">
+                    <div class="form-text">Necessário para confirmar qualquer alteração</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="senha_nova" class="form-label">Nova Senha:</label>
+                    <input type="password" class="form-control" id="senha_nova" name="senha_nova" 
+                           placeholder="Deixe em branco para manter a atual">
+                    <div class="form-text">Mínimo 8 caracteres (se desejar alterar)</div>
+                </div>
+                
+                <!-- Preferências -->
+                <h5 class="section-title">Preferências</h5>
+                
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="receber_notificacoes" 
+                           name="receber_notificacoes" {% if utilizador.receber_notificacoes == 1 %}checked{% endif %}>
+                    <label class="form-check-label" for="receber_notificacoes">
+                        Receber emails com notificações e novidades
+                    </label>
+                </div>
+                
+                <!-- Botões -->
+                <div class="divider"></div>
+                
+                <div class="d-flex gap-2 justify-content-between">
+                    <button type="submit" class="btn btn-success">
+                        Guardar Alterações
+                    </button>
+                    <a href="/" class="btn btn-secondary">
+                        Voltar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Informação Adicional -->
+    <div class="card mt-4">
+        <div class="card-body text-muted" style="font-size: 14px;">
+            <strong>Informações da Conta:</strong>
+            <p class="mb-0 mt-2">ID: <code>{{ utilizador.id }}</code></p>
+            <p class="mb-0">Registado em: <code>{{ utilizador.data_registo[:10] }}</code></p>
+            <p class="mb-0">Tipo: 
+                {% if utilizador.tipo == 1 %}
+                    <span class="badge bg-danger">Administrador</span>
+                {% else %}
+                    <span class="badge bg-secondary">Utilizador</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
