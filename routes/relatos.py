@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, jsonify, session, redirect, url_for, Response
+from flask import Blueprint, request, render_template, jsonify, session, redirect, url_for, Response, flash
 from core.database import DatabaseManager
 from core.config import ServerConfig
 import json
@@ -23,6 +23,11 @@ def requer_login(f):
 @relatos_route.route('/reportar-ponto/<int:ponto_id>', methods=['GET', 'POST'])
 @requer_login
 def reportar_ponto(ponto_id):
+    # Proteger com login
+    if 'user_id' not in session:
+        flash("É necessário estar autenticado para aceder aos reports.", "warning")
+        return redirect(url_for('autenticar.login'))
+    
     db = get_db_manager()
     
     if request.method == 'GET':

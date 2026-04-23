@@ -187,7 +187,12 @@ class DatabaseManager:
                 cursor.execute("INSERT INTO pontos (lat, lng, fonte_id, source_id, is_removed, nome, created_at, updated_at) VALUES (?, ?, ?, ?, 0, ?, ?, ?)", (lat, lng, fonte_value, fonte_principal, ponto_nome, now, now))
                 ponto_id = cursor.lastrowid
                 created += 1
-                categorias_data = [(ponto_id, int(category_metadata(str(cat_key)).get("id", 999))) for cat_key in point.get("categorias", [])]
+                categorias_data = []
+                for cat_key in point.get("categorias", []):
+                    cat_meta = category_metadata(str(cat_key))
+                    cat_id = cat_meta.get("id")
+                    if cat_id is not None:
+                        categorias_data.append((ponto_id, int(cat_id)))
                 if categorias_data:
                     conn.executemany("INSERT OR IGNORE INTO ponto_categorias (ponto_id, categoria_id) VALUES (?, ?)", categorias_data)
         return created

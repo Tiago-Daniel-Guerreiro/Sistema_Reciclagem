@@ -10,10 +10,6 @@ def home():
 
 @home_route.route("/mapa", strict_slashes=False, methods=["GET"])
 def mapa_page():
-    # Proteger com login
-    if 'user_id' not in session:
-        flash("É necessário estar autenticado para aceder ao mapa.", "warning")
-        return redirect(url_for('autenticar.login'))
     return render_template("mapa.html")
 
 @home_route.route("/informacoes", strict_slashes=False)
