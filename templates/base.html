@@ -10,13 +10,13 @@
 </head>
 <body>
     <header class="header">
-        <a href="/" class="logo">RECICLATECH ♻️</a>
         <button class="menu-toggle" id="menu-toggle">
             <!-- Cada span é uma linha do "icon" de menu-->
             <span></span>
             <span></span>
             <span></span>
         </button>
+        <a href="/" class="logo">RECICLATECH ♻️</a>
         <nav class="menu" id="menu">
             <a href="/mapa/" {% if request.path == '/mapa/' or request.path == '/mapa' %}class="ativo"{% endif %}>MAPA</a>
             <a href="/classificacao" {% if request.path == '/classificacao' %}class="ativo"{% endif %}>CLASSIFICAÇÃO</a>

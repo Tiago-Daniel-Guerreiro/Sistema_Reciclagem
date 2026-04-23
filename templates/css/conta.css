@@ -5,6 +5,7 @@
     font-family: 'Poppins', sans-serif;
 }
 
+
 .card {
     background: #111;
     border: 1px solid rgba(32, 201, 151, 0.2);
@@ -81,7 +82,7 @@
 }
 
 .form-check {
-    padding: 10px 0;
+    padding: 0 25px;
     display: flex;
     align-items: center;
 }
@@ -190,10 +191,9 @@
     filter: invert(1);
 }
 
-/* Cards de informação */
 .card-body.text-muted {
     background: #1a1a1a;
-    color: #888;
+    color: #888 !important;
     font-size: 13px;
 }
 
