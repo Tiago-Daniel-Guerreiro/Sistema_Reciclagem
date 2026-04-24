@@ -1,4 +1,3 @@
-
 const RecolhaManager = (function () {
     let _initialized = false;
 

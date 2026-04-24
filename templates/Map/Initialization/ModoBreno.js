@@ -1,3 +1,6 @@
+// O ModoBreno é, na realidade, 'Modo Lisboa'. 
+// O nome 'Breno' foi escolhido como homenagem a um professor que, em todas as aulas, reforçava que o trabalho era de Lisboa e não em Portugal inteiro."
+
 const ModoBreno = (function () {
     const CONFIG = {
         ativo: false,

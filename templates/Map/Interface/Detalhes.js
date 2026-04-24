@@ -14,11 +14,11 @@ const DetalhesModule = (function () {
         currentData = data;
         const essential = PlaceRenderer.extractEssential(data);
 
-        ModalManager.setBotoes('detalhes-modal', [
-            { texto: 'Mostrar', acao: mostrar, className: 'modal-show-btn' },
-            { texto: 'Reportar Problema', acao: reportarProblema, className: 'modal-report-btn' },
-            { texto: 'Fechar', acao: fechar, className: 'modal-close-btn' }
-        ]);
+        const botoes = [{ texto: 'Mostrar', acao: mostrar, className: 'modal-show-btn' }];
+        if (essential.recolha && !(RecolhaAPI?.isUsingSnapshot?.() || false)) botoes.push({ texto: 'Reportar Problema', acao: reportarProblema, className: 'modal-report-btn' });
+        botoes.push({ texto: 'Fechar', acao: fechar, className: 'modal-close-btn' });
+
+        ModalManager.setBotoes('detalhes-modal', botoes);
 
         ModalManager.setTitulo('detalhes-modal', essential.nome);
 

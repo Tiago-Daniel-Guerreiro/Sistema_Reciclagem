@@ -7,6 +7,7 @@ const RecolhaAPI = (function () {
     let _pontos = null;
     let _categoriasGerais = null;
     let _categoriasEletronicos = null;
+    let _usingSnapshot = false;
 
     function _ensureCacheVersion() {
         const current = localStorage.getItem(CACHE_VERSION_KEY);
@@ -187,6 +188,7 @@ const RecolhaAPI = (function () {
                 localStorage.setItem('recolha_pontos_count', String(_pontos.length));
                 localStorage.setItem(CACHE_TIMESTAMP_KEY, String(Date.now()));
 
+                _usingSnapshot = true;
                 return {
                     categoriasGerais: _categoriasGerais,
                     categoriasEletronicos: _categoriasEletronicos,
@@ -257,6 +259,7 @@ const RecolhaAPI = (function () {
         getCategoriasGerais,
         getCategoriasEletronicos,
         getPontos,
-        getPontosInChunks
+        getPontosInChunks,
+        isUsingSnapshot: () => _usingSnapshot
     };
 })();
