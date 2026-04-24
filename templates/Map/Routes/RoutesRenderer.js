@@ -94,6 +94,8 @@ const RoutesRenderer = (function () {
             stepEl.classList.add('active');
             stepEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
+            try { document.getElementById('sidebar').hidePopover(); } catch (e) { }
+
             // Extrai coordenadas do segmento e destaca
             const stepIndex = Array.from(container.querySelectorAll('.route-step')).indexOf(stepEl);
             if (visibleSteps[stepIndex]?.geometry?.coordinates) {

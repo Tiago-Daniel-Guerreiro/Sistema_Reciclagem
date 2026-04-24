@@ -45,6 +45,7 @@ const DetalhesModule = (function () {
     function mostrar() {
         if (!currentData) return;
         const essential = PlaceRenderer.extractEssential(currentData);
+        try { document.getElementById('sidebar').hidePopover(); } catch (e) { }
         if (Utils.isValidCoord(essential.lat, essential.lng)) MapModule.getMap().setView([essential.lat, essential.lng], 14);
     }
 

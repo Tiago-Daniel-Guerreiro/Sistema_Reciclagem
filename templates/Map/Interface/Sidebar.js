@@ -19,6 +19,7 @@ const SidebarModule = (function () {
                 (position) => {
                     const { latitude: lat, longitude: lng } = position.coords;
                     MapModule.setCurrentLocation(lat, lng);
+                    try { document.getElementById('sidebar').hidePopover(); } catch (e) { }
                     MapModule.getMap().setView([lat, lng], 13);
                     PontosManager.clearSource('location');
 

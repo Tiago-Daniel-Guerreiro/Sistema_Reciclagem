@@ -104,8 +104,7 @@ const RoutesMapDrawer = (function () {
             weight: 4,
             dashArray: '10, 8',
             className: 'route-polyline'
-        }).addTo(map);
-    }
+        }).addTo(map);    }
 
     function drawLabel(coords, labelText, map) {
         if (routeLabel) {

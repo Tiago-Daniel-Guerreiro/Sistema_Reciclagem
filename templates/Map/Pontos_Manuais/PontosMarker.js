@@ -30,7 +30,11 @@ const PontosMarker = (function () {
         if (ponto.marker) return ponto.marker;
 
         ponto.marker = L.marker([ponto.lat, ponto.lng]).addTo(layerGroup);
-        ponto.marker.on('click', function () { PontosManager.abrirDetalhes(ponto.id); });
+        ponto.marker.on('click', function () {
+            // Esconder sidebar ao clicar num ponto
+            try { document.getElementById('sidebar').hidePopover(); } catch (e) { }
+            PontosManager.abrirDetalhes(ponto.id);
+        });
 
         applyClassesAndData(ponto);
         return ponto.marker;

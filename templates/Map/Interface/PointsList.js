@@ -29,6 +29,7 @@ const PointsListModule = (function () {
 
         if (e.target.classList.contains('btn-show')) {
             e.stopPropagation();
+            try { document.getElementById('sidebar').hidePopover(); } catch (e) { }
             MapModule.getMap().setView([ponto.lat, ponto.lng], 14);
             return;
         }

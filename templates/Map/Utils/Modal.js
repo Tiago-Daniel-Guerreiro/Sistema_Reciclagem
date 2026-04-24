@@ -54,7 +54,10 @@ const ModalManager = (function () {
 
     function abrir(id) {
         const modal = modaisCarregados[id] || document.getElementById(`${id}-overlay`);
-        if (modal) modal.style.display = 'flex';
+        if (modal) {
+            modal.style.display = 'flex';
+            try { document.getElementById('sidebar').hidePopover(); } catch (e) { }
+        }
     }
 
     function fechar(id) {

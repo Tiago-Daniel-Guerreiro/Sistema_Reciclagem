@@ -68,9 +68,8 @@ const SearchResults = (function () {
 
     function focusOnMap(resultado) {
         if (!MapModule?.getMap) return;
-
+        try { document.getElementById('sidebar').hidePopover(); } catch (e) { }
         MapModule.getMap().setView([resultado.lat, resultado.lng], 14);
-
         if (resultado.polygon_geojson) MapModule.showArea?.(resultado);
     }
 
